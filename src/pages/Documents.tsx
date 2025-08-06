@@ -1,8 +1,13 @@
+import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
-import { FileText, Download, Eye, Calendar, User } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { RichTextEditor } from "@/components/editor/RichTextEditor"
+import { supabase } from "@/integrations/supabase/client"
+import { useAuth } from "@/hooks/useAuth"
+import { useToast } from "@/hooks/use-toast"
+import { CalendarDays, User, Tag, Download, Eye, Edit, Save, FileText, Calendar } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 
 // Mock documents data
