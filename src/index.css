@@ -9,59 +9,59 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Base colors - Drystore Corporate Identity */
-    --background: 249 250 251;
-    --foreground: 226 232 240;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 23%;
 
     /* Card and surface colors */
-    --card: 255 255 255;
-    --card-foreground: 30 41 59;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 23%;
 
-    --popover: 255 255 255;
-    --popover-foreground: 30 41 59;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 23%;
 
-    /* Primary - Drystore Blue */
-    --primary: 219 70 59;
-    --primary-foreground: 248 250 252;
-    --primary-hover: 219 78 67;
-    --primary-active: 219 63 51;
+    /* Primary - Drystore Laranja #F97316 */
+    --primary: 24 96% 53%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 24 96% 48%;
+    --primary-active: 24 96% 43%;
 
-    /* Secondary - Professional Gray */
-    --secondary: 226 232 240;
-    --secondary-foreground: 30 41 59;
+    /* Secondary - Cinza Médio */
+    --secondary: 0 0% 54%;
+    --secondary-foreground: 0 0% 100%;
 
     /* Success - Corporate Green */
-    --success: 158 64 52;
+    --success: 158 64 52%;
     --success-foreground: 240 253 244;
 
     /* Muted tones */
-    --muted: 241 245 249;
-    --muted-foreground: 100 116 139;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 54%;
 
-    /* Accent for highlights */
-    --accent: 219 70 59;
-    --accent-foreground: 248 250 252;
+    /* Accent - Drystore Laranja */
+    --accent: 24 96% 53%;
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive actions */
-    --destructive: 0 84 60;
-    --destructive-foreground: 254 242 242;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
     /* Borders and inputs */
-    --border: 226 232 240;
-    --input: 226 232 240;
-    --ring: 219 70 59;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 24 96% 53%;
 
-    /* Border radius */
+    /* Border radius - Drystore style */
     --radius: 0.5rem;
 
     /* Sidebar specific colors */
-    --sidebar-background: 248 250 252;
-    --sidebar-foreground: 71 85 105;
-    --sidebar-primary: 219 70 59;
-    --sidebar-primary-foreground: 248 250 252;
-    --sidebar-accent: 241 245 249;
-    --sidebar-accent-foreground: 30 41 59;
-    --sidebar-border: 226 232 240;
-    --sidebar-ring: 219 70 59;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 23%;
+    --sidebar-primary: 24 96% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 23%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 24 96% 53%;
 
     /* Chat specific colors */
     --chat-background: 255 255 255;
@@ -75,16 +75,16 @@ All colors MUST be HSL.
     --status-busy: 239 68 68;
     --status-offline: 156 163 175;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-hover)));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--muted)), hsl(var(--secondary)));
+    /* Gradients - Drystore */
+    --gradient-primary: linear-gradient(135deg, hsl(24 96% 53%), hsl(24 96% 48%));
+    --gradient-secondary: linear-gradient(135deg, hsl(0 0% 96%), hsl(0 0% 54%));
     
-    /* Shadows */
-    --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-large: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    /* Shadows - Corporate style */
+    --shadow-soft: 0 1px 3px 0 hsl(24 96% 53% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-medium: 0 4px 6px -1px hsl(24 96% 53% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
+    --shadow-large: 0 10px 15px -3px hsl(24 96% 53% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
 
-    /* Transitions */
+    /* Transitions - Drystore timing */
     --transition-fast: all 0.15s ease-in-out;
     --transition-normal: all 0.3s ease-in-out;
     --transition-slow: all 0.5s ease-in-out;

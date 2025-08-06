@@ -42,12 +42,16 @@ const Index = () => {
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-foreground">
+          <h1 className="text-4xl font-bold text-foreground font-corporate">
             Portal Drystore
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-tagline text-primary font-light uppercase tracking-wide">
+            SOLUÇÕES INTELIGENTES
+          </p>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-corporate">
             Bem-vindo ao centro de comunicação interna da Drystore. 
-            Conecte-se com sua equipe e acesse documentos importantes.
+            <br />
+            <strong>Construir</strong> • <strong>Viver</strong> • <strong>Transformar</strong>
           </p>
         </div>
 
@@ -56,7 +60,7 @@ const Index = () => {
           {quickActions.map((action, index) => (
             <Card 
               key={index}
-              className="cursor-pointer hover:shadow-medium transition-shadow duration-normal"
+              className="cursor-pointer hover:shadow-medium transition-shadow duration-normal rounded-corporate border-border/20"
               onClick={action.action}
             >
               <CardHeader className="text-center">
@@ -67,7 +71,7 @@ const Index = () => {
                 <CardDescription>{action.description}</CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full rounded-pill font-semibold">
                   {action.count}
                 </Button>
               </CardContent>

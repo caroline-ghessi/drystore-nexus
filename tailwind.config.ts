@@ -18,6 +18,13 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'sans': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'corporate': ['Inter', 'sans-serif'],
+			},
+			fontSize: {
+				'tagline': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.1em' }],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -98,7 +105,9 @@ export default {
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				'pill': '1.5625rem', // 25px - botões pill Drystore
+				'corporate': '0.5rem', // 8px - cards corporativos
 			},
 			keyframes: {
 				'accordion-down': {
