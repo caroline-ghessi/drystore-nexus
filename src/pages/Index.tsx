@@ -1,129 +1,227 @@
+import { useAuth } from "@/hooks/useAuth"
 import { useNavigate } from "react-router-dom"
-import { MessageCircle, FileText, Users, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Home, Users, MessageCircle, FileText, Activity, TrendingUp } from "lucide-react"
 
-const Index = () => {
+export default function Index() {
+  const { user } = useAuth()
   const navigate = useNavigate()
 
-  const quickActions = [
-    {
-      title: "Canal Geral",
-      description: "Conversas da equipe",
-      icon: MessageCircle,
-      action: () => navigate("/channel/geral"),
-      count: "3 novas mensagens"
-    },
-    {
-      title: "Documentos",
-      description: "Políticas e manuais",
-      icon: FileText,
-      action: () => navigate("/documents/codigo-conduta"),
-      count: "5 documentos"
-    },
-    {
-      title: "Anúncios",
-      description: "Comunicados oficiais",
-      icon: TrendingUp,
-      action: () => navigate("/channel/anuncios"),
-      count: "Últimas novidades"
-    },
-    {
-      title: "Equipe",
-      description: "Status da equipe",
-      icon: Users,
-      action: () => navigate("/channel/geral"),
-      count: "8 online"
-    }
-  ]
-
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-foreground font-corporate">
-            Portal Drystore
-          </h1>
-          <p className="text-tagline text-primary font-light uppercase tracking-wide">
-            SOLUÇÕES INTELIGENTES
-          </p>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-corporate">
-            Bem-vindo ao centro de comunicação interna da Drystore. 
-            <br />
-            <strong>Construir</strong> • <strong>Viver</strong> • <strong>Transformar</strong>
-          </p>
+    <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <div className="border-b border-border px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Home className="h-6 w-6 text-primary" />
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Home</h1>
+              <p className="text-sm text-muted-foreground">
+                Bem-vindo de volta ao Portal Interno da Drystore
+              </p>
+            </div>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {new Date().toLocaleDateString('pt-BR', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </div>
         </div>
+      </div>
 
-        {/* Quick Actions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {quickActions.map((action, index) => (
-            <Card 
-              key={index}
-              className="cursor-pointer hover:shadow-medium transition-shadow duration-normal rounded-corporate border-border/20"
-              onClick={action.action}
-            >
-              <CardHeader className="text-center">
-                <div className="mx-auto w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-2">
-                  <action.icon className="h-6 w-6 text-primary-foreground" />
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-6xl mx-auto space-y-6">
+          
+          {/* Welcome Section */}
+          <Card className="bg-gradient-primary text-primary-foreground">
+            <CardHeader>
+              <CardTitle className="text-xl">
+                Olá, {user?.user_metadata?.display_name || user?.email}! 👋
+              </CardTitle>
+              <CardDescription className="text-primary-foreground/80">
+                Aqui está um resumo da sua atividade hoje
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <MessageCircle className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">12</p>
+                    <p className="text-sm text-muted-foreground">Mensagens não lidas</p>
+                  </div>
                 </div>
-                <CardTitle className="text-lg">{action.title}</CardTitle>
-                <CardDescription>{action.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <Button variant="outline" className="w-full rounded-pill font-semibold">
-                  {action.count}
-                </Button>
               </CardContent>
             </Card>
-          ))}
-        </div>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Atividade Recente</CardTitle>
-            <CardDescription>
-              Últimas atualizações e mensagens importantes
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4 p-3 rounded-lg bg-muted/50">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-medium text-sm">
-                  J
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-success/10 rounded-lg">
+                    <Users className="h-5 w-5 text-success" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">8</p>
+                    <p className="text-sm text-muted-foreground">Canais ativos</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">João Silva postou no #geral</p>
-                  <p className="text-xs text-muted-foreground">Há 15 minutos</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-accent/10 rounded-lg">
+                    <FileText className="h-5 w-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">24</p>
+                    <p className="text-sm text-muted-foreground">Documentos</p>
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-destructive/10 rounded-lg">
+                    <Activity className="h-5 w-5 text-destructive" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">3</p>
+                    <p className="text-sm text-muted-foreground">Tarefas pendentes</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Activity className="h-5 w-5" />
+                  <span>Atividade Recente</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Nova mensagem em #geral</p>
+                    <p className="text-xs text-muted-foreground">há 5 minutos</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-success rounded-full mt-2" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Documento "Relatório Q4" atualizado</p>
+                    <p className="text-xs text-muted-foreground">há 1 hora</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-accent rounded-full mt-2" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">João Silva entrou no canal #projetos</p>
+                    <p className="text-xs text-muted-foreground">há 2 horas</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <TrendingUp className="h-5 w-5" />
+                  <span>Canais em Alta</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-primary rounded-full" />
+                    <span className="text-sm font-medium">#geral</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">24 mensagens</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-success rounded-full" />
+                    <span className="text-sm font-medium">#projetos</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">18 mensagens</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-accent rounded-full" />
+                    <span className="text-sm font-medium">#random</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">12 mensagens</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Ações Rápidas</CardTitle>
+              <CardDescription>
+                Acesse as principais funcionalidades do portal
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button 
+                  variant="outline" 
+                  className="h-20 flex-col space-y-2"
+                  onClick={() => navigate('/channel/geral')}
+                >
+                  <MessageCircle className="h-6 w-6" />
+                  <span className="text-sm">Nova Mensagem</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="h-20 flex-col space-y-2"
+                  onClick={() => navigate('/channel/geral')}
+                >
+                  <Users className="h-6 w-6" />
+                  <span className="text-sm">Criar Canal</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="h-20 flex-col space-y-2"
+                  onClick={() => navigate('/documents')}
+                >
+                  <FileText className="h-6 w-6" />
+                  <span className="text-sm">Novo Documento</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="h-20 flex-col space-y-2"
+                  onClick={() => navigate('/activity')}
+                >
+                  <Activity className="h-6 w-6" />
+                  <span className="text-sm">Ver Relatórios</span>
+                </Button>
               </div>
-              
-              <div className="flex items-center space-x-4 p-3 rounded-lg bg-muted/50">
-                <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center text-success-foreground font-medium text-sm">
-                  RH
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Novo documento adicionado: Manual do Funcionário v3.0</p>
-                  <p className="text-xs text-muted-foreground">Há 2 horas</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4 p-3 rounded-lg bg-muted/50">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-medium text-sm">
-                  M
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Maria Santos enviou uma mensagem direta</p>
-                  <p className="text-xs text-muted-foreground">Há 1 dia</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
-  );
-};
-
-export default Index;
+  )
+}

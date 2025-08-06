@@ -9,7 +9,13 @@ import {
   Bell, 
   Plus,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Home,
+  Clock,
+  Archive,
+  Search,
+  MoreHorizontal,
+  Edit
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 
@@ -22,10 +28,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
+  SidebarHeader,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { UserStatus } from "@/components/ui/user-status"
 import { CreateChannelModal } from "@/components/modals/CreateChannelModal"
 import { CreateDocumentModal } from "@/components/modals/CreateDocumentModal"
@@ -53,7 +61,9 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed"
   const isActive = (path: string) => currentPath === path
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "hover:bg-sidebar-accent/70 text-sidebar-foreground"
+    isActive 
+      ? "bg-sidebar-accent text-sidebar-primary font-medium border-l-4 border-sidebar-primary rounded-l-none" 
+      : "hover:bg-sidebar-accent/70 text-sidebar-foreground border-l-4 border-transparent rounded-l-none"
 
   useEffect(() => {
     if (user) {
@@ -105,230 +115,306 @@ export function AppSidebar() {
     if (data) setUserProfile(data)
   }
 
+  // Primary navigation items
+  const primaryNavItems = [
+    { title: "Home", url: "/", icon: Home },
+    { title: "DMs", url: "/dms", icon: MessageCircle },
+    { title: "Activity", url: "/activity", icon: Bell },
+    { title: "Later", url: "/later", icon: Clock },
+    { title: "Options", url: "/options", icon: MoreHorizontal },
+  ]
+
   return (
     <>
       <Sidebar
-        className="border-r border-sidebar-border"
+        className="border-r border-sidebar-border bg-sidebar-background"
         collapsible="icon"
       >
-        <SidebarContent className="p-0">
-          {/* Header */}
-          <div className="p-4 border-b border-sidebar-border">
-            <div className="flex items-center justify-between">
-              {!isCollapsed && (
-                <div className="flex items-center space-x-3">
-                  <img 
-                    src={drystoreLogo} 
-                    alt="Drystore" 
-                    className="h-8 w-auto"
-                  />
-                  <div>
-                    <h1 className="text-lg font-semibold text-sidebar-foreground">
-                      Drystore
-                    </h1>
-                    <p className="text-xs text-sidebar-foreground/70">Portal Interno</p>
+        {/* Header with company info */}
+        <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
+          <div className="flex items-center justify-between">
+            {!isCollapsed ? (
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <div className="w-9 h-9 bg-gradient-primary rounded-lg flex items-center justify-center">
+                    <img 
+                      src={drystoreLogo} 
+                      alt="Drystore" 
+                      className="h-6 w-6 object-contain"
+                    />
                   </div>
                 </div>
-              )}
-              <SidebarTrigger className="h-8 w-8" />
+                <div>
+                  <h1 className="text-lg font-bold text-sidebar-foreground">
+                    Drystore
+                  </h1>
+                  <div className="flex items-center text-xs text-sidebar-muted-foreground">
+                    <div className="w-2 h-2 bg-status-online rounded-full mr-1.5" />
+                    Portal Interno
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="w-9 h-9 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <img 
+                  src={drystoreLogo} 
+                  alt="Drystore" 
+                  className="h-5 w-5 object-contain"
+                />
+              </div>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 text-sidebar-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent"
+              onClick={() => {/* Toggle sidebar */}}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          </div>
+        </SidebarHeader>
+
+        <SidebarContent className="px-0">
+          {/* Search Bar */}
+          {!isCollapsed && (
+            <div className="px-4 py-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-sidebar-muted-foreground" />
+                <Input
+                  placeholder="Buscar no Drystore"
+                  className="pl-10 bg-sidebar-accent border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-muted-foreground focus:border-sidebar-primary"
+                />
+              </div>
             </div>
+          )}
+
+          {/* Primary Navigation */}
+          <div className="px-2 py-2">
+            <SidebarMenu>
+              {primaryNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      className={getNavCls}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {!isCollapsed && (
+                        <span className="font-medium">{item.title}</span>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
           </div>
 
-          {/* User Status */}
+          {/* User Status Section */}
           {!isCollapsed && (
-            <div className="p-4 border-b border-sidebar-border">
+            <div className="px-4 py-2 border-b border-sidebar-muted">
               <UserStatus 
                 name={userProfile?.display_name || "Você"}
                 status={userProfile?.status || "online"}
                 customStatus="Trabalhando"
+                className="text-sidebar-foreground"
               />
             </div>
           )}
 
-          {/* Navigation Sections */}
-          <div className="flex-1 overflow-y-auto">
-            {/* Channels */}
-            <SidebarGroup>
-              <div className="px-4 py-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start p-0 h-6 text-sidebar-foreground hover:text-sidebar-primary"
-                  onClick={() => setChannelsExpanded(!channelsExpanded)}
-                >
-                  {channelsExpanded ? (
-                    <ChevronDown className="h-4 w-4 mr-1" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 mr-1" />
-                  )}
+          {/* Channels */}
+          <SidebarGroup>
+            <div className="px-4 py-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start p-0 h-6 text-sidebar-muted-foreground hover:text-sidebar-foreground"
+                onClick={() => setChannelsExpanded(!channelsExpanded)}
+              >
+                {channelsExpanded ? (
+                  <ChevronDown className="h-4 w-4 mr-1" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 mr-1" />
+                )}
+                {!isCollapsed && (
+                  <span className="font-medium text-sm uppercase tracking-wide">Canais</span>
+                )}
+              </Button>
+            </div>
+            
+            {channelsExpanded && (
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {channels.map((channel) => (
+                    <SidebarMenuItem key={channel.id}>
+                      <SidebarMenuButton asChild>
+                        <NavLink 
+                          to={`/channel/${channel.id}`} 
+                          className={getNavCls}
+                        >
+                          {channel.is_private ? (
+                            <Lock className="h-4 w-4" />
+                          ) : (
+                            <Hash className="h-4 w-4" />
+                          )}
+                          {!isCollapsed && (
+                            <span className="truncate">{channel.name}</span>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
                   {!isCollapsed && (
-                    <span className="font-medium">Canais</span>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <button 
+                          onClick={() => setCreateChannelOpen(true)}
+                          className="w-full flex items-center text-left text-sidebar-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 pl-4 border-l-4 border-transparent rounded-l-none"
+                        >
+                          <Plus className="h-4 w-4" />
+                          <span>Adicionar canal</span>
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   )}
-                </Button>
-              </div>
-              
-              {channelsExpanded && (
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {channels.map((channel) => (
-                      <SidebarMenuItem key={channel.id}>
-                        <SidebarMenuButton asChild>
-                          <NavLink 
-                            to={`/channel/${channel.id}`} 
-                            className={getNavCls}
-                          >
-                            {channel.is_private ? (
-                              <Lock className="h-4 w-4" />
-                            ) : (
-                              <Hash className="h-4 w-4" />
-                            )}
-                            {!isCollapsed && (
-                              <span className="truncate">{channel.name}</span>
-                            )}
-                          </NavLink>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                    {!isCollapsed && (
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <button 
-                            onClick={() => setCreateChannelOpen(true)}
-                            className="w-full flex items-center text-left text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-                          >
-                            <Plus className="h-4 w-4" />
-                            <span>Adicionar canal</span>
-                          </button>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              )}
-            </SidebarGroup>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            )}
+          </SidebarGroup>
 
-            {/* Direct Messages */}
-            <SidebarGroup>
-              <div className="px-4 py-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start p-0 h-6 text-sidebar-foreground hover:text-sidebar-primary"
-                  onClick={() => setDmExpanded(!dmExpanded)}
-                >
-                  {dmExpanded ? (
-                    <ChevronDown className="h-4 w-4 mr-1" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 mr-1" />
-                  )}
-                  {!isCollapsed && (
-                    <span className="font-medium">Mensagens diretas</span>
-                  )}
-                </Button>
-              </div>
-              
-              {dmExpanded && (
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {profiles.map((profile) => (
-                      <SidebarMenuItem key={profile.id}>
-                        <SidebarMenuButton asChild>
-                          <NavLink 
-                            to={`/dm/${profile.user_id}`} 
-                            className={getNavCls}
-                          >
-                            <div className="flex items-center space-x-2">
-                              <div className={`w-2 h-2 rounded-full ${
-                                profile.status === 'online' ? 'bg-status-online' :
-                                profile.status === 'away' ? 'bg-status-away' :
-                                profile.status === 'busy' ? 'bg-status-busy' :
-                                'bg-status-offline'
-                              }`} />
-                              <MessageCircle className="h-4 w-4" />
+          {/* Direct Messages */}
+          <SidebarGroup>
+            <div className="px-4 py-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start p-0 h-6 text-sidebar-muted-foreground hover:text-sidebar-foreground"
+                onClick={() => setDmExpanded(!dmExpanded)}
+              >
+                {dmExpanded ? (
+                  <ChevronDown className="h-4 w-4 mr-1" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 mr-1" />
+                )}
+                {!isCollapsed && (
+                  <span className="font-medium text-sm uppercase tracking-wide">Mensagens Diretas</span>
+                )}
+              </Button>
+            </div>
+            
+            {dmExpanded && (
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {profiles.map((profile) => (
+                    <SidebarMenuItem key={profile.id}>
+                      <SidebarMenuButton asChild>
+                        <NavLink 
+                          to={`/dm/${profile.user_id}`} 
+                          className={getNavCls}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-2 h-2 rounded-full ${
+                              profile.status === 'online' ? 'bg-status-online' :
+                              profile.status === 'away' ? 'bg-status-away' :
+                              profile.status === 'busy' ? 'bg-status-busy' :
+                              'bg-status-offline'
+                            }`} />
+                            <div className="w-6 h-6 bg-sidebar-primary rounded-md flex items-center justify-center text-sidebar-primary-foreground text-xs font-medium">
+                              {(profile.display_name || 'U').charAt(0).toUpperCase()}
                             </div>
-                            {!isCollapsed && (
-                              <span className="truncate">{profile.display_name || 'Usuário'}</span>
-                            )}
-                          </NavLink>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              )}
-            </SidebarGroup>
+                          </div>
+                          {!isCollapsed && (
+                            <span className="truncate">{profile.display_name || 'Usuário'}</span>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            )}
+          </SidebarGroup>
 
-            {/* Documents */}
-            <SidebarGroup>
-              <div className="px-4 py-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start p-0 h-6 text-sidebar-foreground hover:text-sidebar-primary"
-                  onClick={() => setDocsExpanded(!docsExpanded)}
-                >
-                  {docsExpanded ? (
-                    <ChevronDown className="h-4 w-4 mr-1" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 mr-1" />
+          {/* Documents */}
+          <SidebarGroup>
+            <div className="px-4 py-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start p-0 h-6 text-sidebar-muted-foreground hover:text-sidebar-foreground"
+                onClick={() => setDocsExpanded(!docsExpanded)}
+              >
+                {docsExpanded ? (
+                  <ChevronDown className="h-4 w-4 mr-1" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 mr-1" />
+                )}
+                {!isCollapsed && (
+                  <span className="font-medium text-sm uppercase tracking-wide">Documentos</span>
+                )}
+              </Button>
+            </div>
+            
+            {docsExpanded && (
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {documents.map((doc) => (
+                    <SidebarMenuItem key={doc.id}>
+                      <SidebarMenuButton asChild>
+                        <NavLink 
+                          to={`/documents/${doc.id}`} 
+                          className={getNavCls}
+                        >
+                          <FileText className="h-4 w-4" />
+                          {!isCollapsed && (
+                            <span className="truncate">{doc.title}</span>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                  {!isCollapsed && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <button 
+                          onClick={() => setCreateDocumentOpen(true)}
+                          className="w-full flex items-center text-left text-sidebar-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 pl-4 border-l-4 border-transparent rounded-l-none"
+                        >
+                          <Plus className="h-4 w-4" />
+                          <span>Adicionar documento</span>
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   )}
-                  {!isCollapsed && <span className="font-medium">Documentos</span>}
-                </Button>
-              </div>
-              
-              {docsExpanded && (
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {documents.map((doc) => (
-                      <SidebarMenuItem key={doc.id}>
-                        <SidebarMenuButton asChild>
-                          <NavLink 
-                            to={`/documents/${doc.id}`} 
-                            className={getNavCls}
-                          >
-                            <FileText className="h-4 w-4" />
-                            {!isCollapsed && (
-                              <span className="truncate">{doc.title}</span>
-                            )}
-                          </NavLink>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                    {!isCollapsed && (
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <button 
-                            onClick={() => setCreateDocumentOpen(true)}
-                            className="w-full flex items-center text-left text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-                          >
-                            <Plus className="h-4 w-4" />
-                            <span>Adicionar documento</span>
-                          </button>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              )}
-            </SidebarGroup>
-          </div>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            )}
+          </SidebarGroup>
+        </SidebarContent>
 
-          {/* Footer Navigation */}
-          {!isCollapsed && (
-            <div className="border-t border-sidebar-border p-2">
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/settings" className={getNavCls}>
-                      <Settings className="h-4 w-4" />
-                      <span>Configurações</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
+        {/* Footer */}
+        <SidebarFooter className="border-t border-sidebar-border p-2">
+          {!isCollapsed ? (
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink 
+                    to="/settings" 
+                    className="hover:bg-sidebar-accent text-sidebar-muted-foreground hover:text-sidebar-foreground border-l-4 border-transparent rounded-l-none"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span>Configurações</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          ) : (
+            <div className="flex justify-center">
+              <Button variant="ghost" size="sm" className="h-8 w-8">
+                <Settings className="h-4 w-4" />
+              </Button>
             </div>
           )}
-        </SidebarContent>
+        </SidebarFooter>
       </Sidebar>
       
       <CreateChannelModal 
