@@ -160,8 +160,98 @@ A Drystore foi fundada com o objetivo de revolucionar o armazenamento de dados..
 
 export default function Documents() {
   const { documentId } = useParams<{ documentId: string }>()
-  
-  if (!documentId || !documentsData[documentId]) {
+  const { user } = useAuth()
+  const { toast } = useToast()
+  const [document, setDocument] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [editing, setEditing] = useState(false)
+  const [content, setContent] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (documentId) {
+      fetchDocument()
+    }
+  }, [documentId])
+
+  const fetchDocument = async () => {
+    if (!documentId) return
+    
+    setLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('documents')
+        .select(`
+          *,
+          creator:created_by(display_name),
+          last_modifier:last_modified_by(display_name)
+        `)
+        .eq('id', documentId)
+        .single()
+
+      if (error) throw error
+      
+      setDocument(data)
+      setContent(data.content ? (typeof data.content === 'string' ? data.content : JSON.stringify(data.content)) : '')
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar documento",
+        description: error.message,
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const canEdit = document && (document.created_by === user?.id || document.is_public)
+
+  const handleSave = async () => {
+    if (!document || !user) return
+    
+    setSaving(true)
+    try {
+      const { error } = await supabase
+        .from('documents')
+        .update({
+          content: content,
+          last_modified_by: user.id,
+          version: document.version + 1
+        })
+        .eq('id', document.id)
+
+      if (error) throw error
+
+      toast({
+        title: "Documento salvo!",
+        description: "As alterações foram salvas com sucesso.",
+      })
+      
+      setEditing(false)
+      fetchDocument() // Refresh data
+    } catch (error: any) {
+      toast({
+        title: "Erro ao salvar",
+        description: error.message,
+        variant: "destructive",
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Carregando documento...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!document) {
     return (
       <div className="flex items-center justify-center h-full bg-background">
         <div className="text-center">
@@ -175,8 +265,6 @@ export default function Documents() {
       </div>
     )
   }
-
-  const document = documentsData[documentId]
 
   return (
     <div className="h-full bg-background">
