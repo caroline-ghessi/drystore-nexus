@@ -1,18 +1,11 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, Paperclip, Smile, Hash, Lock } from "lucide-react"
+import { Send, Paperclip, Smile, Hash, Lock, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserStatus } from "@/components/ui/user-status"
-
-interface Message {
-  id: string
-  content: string
-  author: string
-  timestamp: Date
-  isOwn: boolean
-  avatar?: string
-}
+import { useMessages } from "@/hooks/useMessages"
+import { useAuth } from "@/hooks/useAuth"
 
 interface ChatAreaProps {
   channelId: string
@@ -21,48 +14,10 @@ interface ChatAreaProps {
   isDM?: boolean
 }
 
-// Mock messages data
-const mockMessages: Message[] = [
-  {
-    id: "1",
-    content: "Bom dia pessoal! Como estão as vendas de hoje?",
-    author: "João Silva",
-    timestamp: new Date(Date.now() - 3600000),
-    isOwn: false
-  },
-  {
-    id: "2", 
-    content: "Oi João! As vendas estão ótimas hoje, já batemos 80% da meta diária.",
-    author: "Você",
-    timestamp: new Date(Date.now() - 3000000),
-    isOwn: true
-  },
-  {
-    id: "3",
-    content: "Que ótima notícia! Vamos conseguir fechar o mês muito bem 🎉",
-    author: "Maria Santos",
-    timestamp: new Date(Date.now() - 2400000),
-    isOwn: false
-  },
-  {
-    id: "4",
-    content: "Pessoal, deixei o relatório de vendas na pasta compartilhada. Deem uma olhada quando puderem.",
-    author: "Pedro Costa", 
-    timestamp: new Date(Date.now() - 1800000),
-    isOwn: false
-  },
-  {
-    id: "5",
-    content: "Obrigado Pedro! Já vou dar uma conferida nos números.",
-    author: "Você",
-    timestamp: new Date(Date.now() - 900000),
-    isOwn: true
-  }
-]
-
 export function ChatArea({ channelId, channelName, isPrivate = false, isDM = false }: ChatAreaProps) {
-  const [messages, setMessages] = useState<Message[]>(mockMessages)
+  const { messages, loading, sendMessage } = useMessages(channelId)
   const [newMessage, setNewMessage] = useState("")
+  const { user } = useAuth()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -73,30 +28,23 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
     scrollToBottom()
   }, [messages])
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newMessage.trim()) return
 
-    const message: Message = {
-      id: Date.now().toString(),
-      content: newMessage,
-      author: "Você",
-      timestamp: new Date(),
-      isOwn: true
-    }
-
-    setMessages(prev => [...prev, message])
+    await sendMessage(newMessage)
     setNewMessage("")
   }
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('pt-BR', { 
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString('pt-BR', { 
       hour: '2-digit', 
       minute: '2-digit' 
     })
   }
 
-  const formatDate = (date: Date) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
     const today = new Date()
     const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
@@ -154,53 +102,70 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
       {/* Messages Area - Slack style */}
       <ScrollArea className="flex-1 px-6">
         <div className="py-4">
-          {messages.map((message, index) => {
-            const showDate = index === 0 || 
-              formatDate(message.timestamp) !== formatDate(messages[index - 1].timestamp)
-            
-            return (
-              <div key={message.id}>
-                {showDate && (
-                  <div className="text-center my-4">
-                    <span className="bg-muted px-3 py-1 rounded-full text-xs text-muted-foreground">
-                      {formatDate(message.timestamp)}
-                    </span>
-                  </div>
-                )}
-                
-                {/* Slack-style linear message layout */}
-                <div className="flex space-x-3 hover:bg-muted/30 py-2 px-3 -mx-3 rounded group">
-                  {/* Avatar always on the left */}
-                  <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-medium text-sm flex-shrink-0">
-                    {message.isOwn ? 'V' : message.author.charAt(0).toUpperCase()}
-                  </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Nenhuma mensagem ainda.</p>
+              <p className="text-sm mt-1">Seja o primeiro a escrever algo!</p>
+            </div>
+          ) : (
+            messages.map((message, index) => {
+              const showDate = index === 0 || 
+                formatDate(message.created_at) !== formatDate(messages[index - 1].created_at)
+              
+              const isOwn = message.user_id === user?.id
+              const authorName = isOwn ? 'Você' : 'Usuário'
+              
+              return (
+                <div key={message.id}>
+                  {showDate && (
+                    <div className="text-center my-4">
+                      <span className="bg-muted px-3 py-1 rounded-full text-xs text-muted-foreground">
+                        {formatDate(message.created_at)}
+                      </span>
+                    </div>
+                  )}
                   
-                  {/* Message content */}
-                  <div className="flex-1 min-w-0">
-                    {/* Name and timestamp row */}
-                    <div className="flex items-baseline space-x-2 mb-1">
-                      <span className="text-sm font-semibold text-foreground">
-                        {message.isOwn ? 'Você' : message.author}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatTime(message.timestamp)}
-                      </span>
+                  {/* Slack-style linear message layout */}
+                  <div className="flex space-x-3 hover:bg-muted/30 py-2 px-3 -mx-3 rounded group">
+                    {/* Avatar always on the left */}
+                    <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-medium text-sm flex-shrink-0">
+                      {authorName.charAt(0).toUpperCase()}
                     </div>
                     
-                    {/* Message text */}
-                    <div className="text-sm text-foreground leading-relaxed">
-                      {message.content}
+                    {/* Message content */}
+                    <div className="flex-1 min-w-0">
+                      {/* Name and timestamp row */}
+                      <div className="flex items-baseline space-x-2 mb-1">
+                        <span className="text-sm font-semibold text-foreground">
+                          {authorName}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatTime(message.created_at)}
+                        </span>
+                        {message.edited && (
+                          <span className="text-xs text-muted-foreground">(editado)</span>
+                        )}
+                      </div>
+                      
+                      {/* Message text */}
+                      <div className="text-sm text-foreground leading-relaxed">
+                        {message.content}
+                      </div>
+                    </div>
+                    
+                    {/* Actions on hover (hidden for now, Slack-style) */}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* Espaço para futuras ações como reações, responder, etc. */}
                     </div>
                   </div>
-                  
-                  {/* Actions on hover (hidden for now, Slack-style) */}
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    {/* Espaço para futuras ações como reações, responder, etc. */}
-                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })
+          )}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
