@@ -62,7 +62,7 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed"
   const isActive = (path: string) => currentPath === path
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-sidebar-accent text-sidebar-primary font-medium" : "hover:bg-sidebar-accent/50"
+    isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "hover:bg-sidebar-accent/70 text-sidebar-foreground"
 
   const getTotalUnread = (items: any[]) => 
     items.reduce((total, item) => total + item.unread, 0)
@@ -87,7 +87,7 @@ export function AppSidebar() {
                   <h1 className="text-lg font-semibold text-sidebar-foreground">
                     Drystore
                   </h1>
-                  <p className="text-xs text-muted-foreground">Portal Interno</p>
+                  <p className="text-xs text-sidebar-foreground/70">Portal Interno</p>
                 </div>
               </div>
             )}
@@ -167,7 +167,7 @@ export function AppSidebar() {
                   {!isCollapsed && (
                     <SidebarMenuItem>
                       <SidebarMenuButton asChild>
-                        <button className="w-full flex items-center text-left text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/50">
+                        <button className="w-full flex items-center text-left text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50">
                           <Plus className="h-4 w-4" />
                           <span>Adicionar canal</span>
                         </button>

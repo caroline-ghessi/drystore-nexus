@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Send, Paperclip, Smile, Hash, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserStatus } from "@/components/ui/user-status"
 
@@ -112,40 +112,48 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
 
   return (
     <div className="flex flex-col h-full bg-chat-background">
-      {/* Header */}
-      <div className="border-b border-border p-4 bg-card">
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-2">
-            {isPrivate ? (
-              <Lock className="h-5 w-5 text-muted-foreground" />
-            ) : (
-              <Hash className="h-5 w-5 text-muted-foreground" />
+      {/* Slack-style Header */}
+      <div className="border-b border-border px-6 py-4 bg-background">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
+              {isPrivate ? (
+                <Lock className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <Hash className="h-5 w-5 text-muted-foreground" />
+              )}
+              <h1 className="text-xl font-bold text-foreground">
+                {isDM ? channelName : channelName}
+              </h1>
+            </div>
+            {!isDM && (
+              <div className="text-sm text-muted-foreground">
+                {isPrivate ? "🔒 Canal privado" : "Público"}
+              </div>
             )}
-            <h1 className="text-xl font-semibold text-card-foreground">
-              {isDM ? channelName : `# ${channelName}`}
-            </h1>
           </div>
+          
           {isDM && (
             <UserStatus 
               name=""
               status="online"
-              className="ml-auto"
             />
           )}
         </div>
+        
         {!isDM && (
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-2">
             {isPrivate 
-              ? "Canal privado - apenas membros autorizados podem ver esta conversa" 
-              : "Canal público - toda a equipe pode participar"
+              ? "Este canal é privado. Apenas membros específicos podem visualizar e participar."
+              : "Canal público da equipe Drystore"
             }
           </p>
         )}
       </div>
 
-      {/* Messages Area */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+      {/* Messages Area - Slack style */}
+      <ScrollArea className="flex-1 px-6">
+        <div className="py-4">
           {messages.map((message, index) => {
             const showDate = index === 0 || 
               formatDate(message.timestamp) !== formatDate(messages[index - 1].timestamp)
@@ -160,44 +168,35 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
                   </div>
                 )}
                 
-                <div className={`flex space-x-3 ${message.isOwn ? 'justify-end' : 'justify-start'}`}>
-                  {!message.isOwn && (
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-medium text-sm flex-shrink-0">
-                      {message.author.charAt(0).toUpperCase()}
-                    </div>
-                  )}
+                {/* Slack-style linear message layout */}
+                <div className="flex space-x-3 hover:bg-muted/30 py-2 px-3 -mx-3 rounded group">
+                  {/* Avatar always on the left */}
+                  <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-medium text-sm flex-shrink-0">
+                    {message.isOwn ? 'V' : message.author.charAt(0).toUpperCase()}
+                  </div>
                   
-                  <div className={`max-w-[70%] ${message.isOwn ? 'order-first' : ''}`}>
-                    {!message.isOwn && (
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-sm font-medium text-card-foreground">
-                          {message.author}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatTime(message.timestamp)}
-                        </span>
-                      </div>
-                    )}
+                  {/* Message content */}
+                  <div className="flex-1 min-w-0">
+                    {/* Name and timestamp row */}
+                    <div className="flex items-baseline space-x-2 mb-1">
+                      <span className="text-sm font-semibold text-foreground">
+                        {message.isOwn ? 'Você' : message.author}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatTime(message.timestamp)}
+                      </span>
+                    </div>
                     
-                    <div className={`p-3 rounded-lg ${
-                      message.isOwn 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
-                      <p className="text-sm leading-relaxed">{message.content}</p>
-                      {message.isOwn && (
-                        <div className="text-xs opacity-70 mt-1 text-right">
-                          {formatTime(message.timestamp)}
-                        </div>
-                      )}
+                    {/* Message text */}
+                    <div className="text-sm text-foreground leading-relaxed">
+                      {message.content}
                     </div>
                   </div>
                   
-                  {message.isOwn && (
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-medium text-sm flex-shrink-0">
-                      V
-                    </div>
-                  )}
+                  {/* Actions on hover (hidden for now, Slack-style) */}
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Espaço para futuras ações como reações, responder, etc. */}
+                  </div>
                 </div>
               </div>
             )
@@ -206,22 +205,36 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
         </div>
       </ScrollArea>
 
-      {/* Message Input */}
-      <div className="border-t border-border p-4 bg-card">
-        <form onSubmit={handleSendMessage} className="flex space-x-2">
-          <div className="flex-1 relative">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder={`Enviar mensagem para ${isDM ? channelName : `#${channelName}`}`}
-              className="pr-20 bg-chat-input border-input focus:ring-ring"
-            />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex space-x-1">
+      {/* Slack-style Message Input */}
+      <div className="px-6 pb-6">
+        <form onSubmit={handleSendMessage}>
+          <div className="relative">
+            {/* Formatting toolbar */}
+            <div className="flex items-center space-x-1 p-2 border border-input rounded-t-lg bg-background">
               <Button
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="h-6 w-6 p-0 hover:bg-muted"
+                className="h-7 w-7 p-0 hover:bg-muted"
+                title="Negrito"
+              >
+                <span className="text-sm font-bold">B</span>
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 hover:bg-muted"
+                title="Itálico"
+              >
+                <span className="text-sm italic">I</span>
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 hover:bg-muted"
+                title="Anexar arquivo"
               >
                 <Paperclip className="h-4 w-4" />
               </Button>
@@ -229,19 +242,38 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="h-6 w-6 p-0 hover:bg-muted"
+                className="h-7 w-7 p-0 hover:bg-muted"
+                title="Emoji"
               >
                 <Smile className="h-4 w-4" />
               </Button>
             </div>
+            
+            {/* Message input */}
+            <div className="relative">
+              <Textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder={`Mensagem ${isDM ? channelName : `#${channelName}`}`}
+                className="rounded-t-none rounded-b-lg border-t-0 bg-background pr-12 py-3 min-h-[44px] max-h-[120px] resize-none"
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    handleSendMessage(e as any)
+                  }
+                }}
+              />
+              <Button 
+                type="submit" 
+                disabled={!newMessage.trim()}
+                size="sm"
+                className="absolute right-2 bottom-2 h-8 w-8 p-0 bg-primary hover:bg-primary/90"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <Button 
-            type="submit" 
-            disabled={!newMessage.trim()}
-            className="bg-primary hover:bg-primary-hover text-primary-foreground"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
         </form>
       </div>
     </div>

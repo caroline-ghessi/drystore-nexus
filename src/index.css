@@ -53,14 +53,14 @@ All colors MUST be HSL.
     /* Border radius - Drystore style */
     --radius: 0.5rem;
 
-    /* Sidebar specific colors */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 23%;
+    /* Sidebar specific colors - Slack-style dark theme */
+    --sidebar-background: 0 0% 22%;
+    --sidebar-foreground: 0 0% 85%;
     --sidebar-primary: 24 96% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 23%;
-    --sidebar-border: 0 0% 90%;
+    --sidebar-accent: 0 0% 30%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 30%;
     --sidebar-ring: 24 96% 53%;
 
     /* Chat specific colors - HSL format */
