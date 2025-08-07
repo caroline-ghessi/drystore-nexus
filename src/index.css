@@ -68,17 +68,17 @@ All colors MUST be HSL.
     /* Border radius - Drystore style */
     --radius: 0.75rem; /* 12px - Mais arredondado */
 
-    /* Sidebar specific colors - Drystore Design - CONTRAST FIXED */
+    /* Sidebar specific colors - Drystore Design - CONTRAST DEFINITIVO */
     --sidebar-background: 0 0% 100%;        /* Branco limpo */
-    --sidebar-foreground: 214 32% 11%;      /* #1F2937 - Texto escuro para máxima legibilidade */
+    --sidebar-foreground: 214 32% 17%;      /* #1F2937 - Texto principal escuro legível */
     --sidebar-primary: 24 95% 53%;          /* #F97316 - Laranja Drystore para itens ativos */
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 24 100% 97%;          /* #FFF7ED - Hover laranja muito claro */
-    --sidebar-accent-foreground: 24 95% 53%; /* #F97316 - Texto laranja no hover */
+    --sidebar-accent-foreground: 24 95% 53%; /* #F97316 - Texto laranja para botões especiais */
     --sidebar-border: 24 95% 53%;           /* #F97316 - Borda laranja */
     --sidebar-ring: 24 95% 53%;
     --sidebar-muted: 220 13% 97%;           /* #F8F9FA - Fundo items */
-    --sidebar-muted-foreground: 214 13% 47%; /* #6B7280 - Cinza médio mais legível */
+    --sidebar-muted-foreground: 214 13% 35%; /* #64748B - Cinza médio mais escuro para labels */
 
     /* Chat specific colors - HSL format */
     --chat-background: 0 0% 100%;

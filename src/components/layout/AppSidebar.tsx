@@ -206,7 +206,7 @@ export function AppSidebar() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start p-0 h-6 text-sidebar-muted-foreground hover:text-sidebar-foreground"
+                className="w-full justify-start p-0 h-6 text-sidebar-foreground hover:text-sidebar-primary"
                 onClick={() => setChannelsExpanded(!channelsExpanded)}
               >
                 {channelsExpanded ? (
@@ -247,7 +247,7 @@ export function AppSidebar() {
                       <SidebarMenuButton asChild>
                         <button 
                           onClick={() => setCreateChannelOpen(true)}
-                          className="w-full flex items-center gap-2 text-left text-sidebar-accent-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent pl-4 py-2 rounded-xl font-medium transition-all"
+                          className="w-full flex items-center gap-2 text-left text-sidebar-accent-foreground hover:text-sidebar-primary hover:bg-sidebar-accent pl-4 py-2 rounded-xl font-medium transition-all"
                         >
                           <Plus className="h-4 w-4" />
                           <span>Adicionar canal</span>
@@ -266,7 +266,7 @@ export function AppSidebar() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start p-0 h-6 text-sidebar-muted-foreground hover:text-sidebar-foreground"
+                className="w-full justify-start p-0 h-6 text-sidebar-foreground hover:text-sidebar-primary"
                 onClick={() => setDmExpanded(!dmExpanded)}
               >
                 {dmExpanded ? (
