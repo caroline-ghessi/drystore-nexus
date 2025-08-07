@@ -156,34 +156,87 @@ export function CorporateDashboard() {
   const completionRate = ((tasks.length - pendingTasks.length) / tasks.length) * 100;
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard Corporativo</h1>
-          <p className="text-muted-foreground">
-            Visão geral da sua atividade na Drystore
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
+    <div className="min-h-screen bg-background animate-fade-in">
+      {/* Header Acolhedor com Gradiente */}
+      <div className="bg-gradient-hero text-white p-8 rounded-b-3xl shadow-large mb-6 mx-6 mt-4 animate-scale-in">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl">
+              <TrendingUp className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Bom dia, Drystore! ☀️</h1>
+              <p className="text-white/90 text-lg">
+                Aqui está o resumo da sua {new Date().toLocaleDateString('pt-BR', { weekday: 'long' })} produtiva
+              </p>
+            </div>
+          </div>
+          <div className="text-white/80 text-sm">
             {new Date().toLocaleDateString('pt-BR', { 
-              weekday: 'long', 
               year: 'numeric', 
               month: 'long', 
               day: 'numeric' 
             })}
-          </Badge>
+          </div>
         </div>
       </div>
+      
+      <div className="space-y-6 px-6 pb-6">
 
-      {/* Métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((metric, index) => (
-          <MetricCard key={index} {...metric} />
-        ))}
-      </div>
+        {/* Métricas com KPI Cards Modernos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-gradient-card p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <Users className="w-6 h-6" />
+              </div>
+              <span className="text-green-300 text-sm font-semibold">+12%</span>
+            </div>
+            <div>
+              <div className="text-3xl font-bold mb-1">284</div>
+              <div className="text-white/80 text-sm">Colaboradores Ativos</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-primary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.1s'}}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <MessageCircle className="w-6 h-6" />
+              </div>
+              <span className="text-green-300 text-sm font-semibold">+8%</span>
+            </div>
+            <div>
+              <div className="text-3xl font-bold mb-1">1,847</div>
+              <div className="text-white/80 text-sm">Mensagens Hoje</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-secondary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.2s'}}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <FileText className="w-6 h-6" />
+              </div>
+              <span className="text-blue-300 text-sm font-semibold">5 esta semana</span>
+            </div>
+            <div>
+              <div className="text-3xl font-bold mb-1">23</div>
+              <div className="text-white/80 text-sm">Documentos Atualizados</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-hero p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.3s'}}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <Clock className="w-6 h-6" />
+              </div>
+              <span className="text-green-300 text-sm font-semibold">-15%</span>
+            </div>
+            <div>
+              <div className="text-3xl font-bold mb-1">2.3h</div>
+              <div className="text-white/80 text-sm">Tempo Resposta Médio</div>
+            </div>
+          </div>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Comunicados Recentes */}
@@ -303,6 +356,7 @@ export function CorporateDashboard() {
             ))}
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

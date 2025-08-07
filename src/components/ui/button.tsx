@@ -9,16 +9,18 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active",
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active hover:shadow-elegant hover:scale-105 transition-all duration-300",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-medium hover:scale-105 transition-all duration-300",
         outline:
-          "border border-primary/30 bg-background hover:bg-primary/10 hover:text-primary hover:border-primary/50",
+          "border border-primary/30 bg-background hover:bg-primary/10 hover:text-primary hover:border-primary/50 hover:shadow-soft hover:scale-105 transition-all duration-300",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-soft hover:scale-105 transition-all duration-300",
+        ghost: "hover:bg-accent hover:text-accent-foreground hover:scale-105 transition-all duration-300",
         link: "text-primary underline-offset-4 hover:underline",
-        corporate: "bg-gradient-primary text-primary-foreground hover:shadow-medium rounded-pill font-semibold",
+        corporate: "bg-gradient-primary text-primary-foreground hover:shadow-elegant hover:scale-105 rounded-pill font-semibold transition-all duration-300",
+        hero: "bg-gradient-hero text-white shadow-elegant hover:shadow-glow hover:scale-105 rounded-2xl font-semibold transition-all duration-300",
+        gradient: "bg-gradient-card text-white shadow-medium hover:shadow-elegant hover:scale-105 transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",

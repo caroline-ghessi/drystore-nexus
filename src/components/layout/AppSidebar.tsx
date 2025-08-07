@@ -21,6 +21,7 @@ import {
   Activity,
   Shield
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { NavLink, useLocation } from "react-router-dom"
 
 import {
@@ -64,9 +65,12 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed"
   const isActive = (path: string) => currentPath === path
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive 
-      ? "bg-sidebar-accent text-sidebar-primary font-medium border-l-4 border-sidebar-primary rounded-l-none" 
-      : "hover:bg-sidebar-accent/70 text-sidebar-foreground border-l-4 border-transparent rounded-l-none"
+    cn(
+      "flex items-center gap-3 mx-2 px-4 py-3 rounded-xl transition-all duration-300 font-medium",
+      isActive 
+        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-medium scale-105" 
+        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:translate-x-1"
+    )
 
   useEffect(() => {
     if (user) {
@@ -122,62 +126,54 @@ export function AppSidebar() {
   return (
     <>
       <Sidebar
-        className="border-r border-sidebar-border bg-sidebar-background"
+        className="border-r border-sidebar-border bg-sidebar shadow-elegant rounded-r-3xl"
         collapsible="icon"
       >
         {/* Header with company info */}
-        <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
+        <SidebarHeader className="border-b border-sidebar-border px-6 py-4">
           <div className="flex items-center justify-between">
             {!isCollapsed ? (
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-9 h-9 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-medium">
                     <img 
                       src={drystoreLogo} 
                       alt="Drystore" 
-                      className="h-6 w-6 object-contain"
+                      className="h-7 w-7 object-contain"
                     />
                   </div>
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold text-sidebar-foreground">
+                  <h1 className="text-xl font-bold text-sidebar-foreground">
                     Drystore
                   </h1>
                   <div className="flex items-center text-xs text-sidebar-muted-foreground">
-                    <div className="w-2 h-2 bg-status-online rounded-full mr-1.5" />
+                    <div className="w-2 h-2 bg-status-online rounded-full mr-1.5 animate-pulse" />
                     Portal Interno
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="w-9 h-9 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-medium">
                 <img 
                   src={drystoreLogo} 
                   alt="Drystore" 
-                  className="h-5 w-5 object-contain"
+                  className="h-6 w-6 object-contain"
                 />
               </div>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 text-sidebar-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent"
-              onClick={() => {/* Toggle sidebar */}}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
           </div>
         </SidebarHeader>
 
         <SidebarContent className="px-0">
           {/* Search Bar */}
           {!isCollapsed && (
-            <div className="px-4 py-2">
+            <div className="px-6 py-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-sidebar-muted-foreground" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-sidebar-muted-foreground" />
                 <Input
-                  placeholder="Buscar no Drystore"
-                  className="pl-10 bg-sidebar-accent border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-muted-foreground focus:border-sidebar-primary"
+                  placeholder="Buscar conversas..."
+                  className="pl-12 py-3 bg-sidebar-muted border-0 rounded-xl text-sidebar-foreground placeholder:text-sidebar-muted-foreground focus:bg-background focus:ring-2 focus:ring-sidebar-ring transition-all duration-300"
                 />
               </div>
             </div>
@@ -185,7 +181,7 @@ export function AppSidebar() {
 
           {/* Primary Navigation */}
           <div className="px-2 py-2">
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {primaryNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -195,7 +191,7 @@ export function AppSidebar() {
                     >
                       <item.icon className="h-5 w-5" />
                       {!isCollapsed && (
-                        <span className="font-medium">{item.title}</span>
+                        <span>{item.title}</span>
                       )}
                     </NavLink>
                   </SidebarMenuButton>
