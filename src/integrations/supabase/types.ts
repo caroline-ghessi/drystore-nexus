@@ -129,7 +129,7 @@ export type Database = {
           category?: string | null
           content?: Json | null
           created_at?: string
-          created_by: string
+          created_by?: string
           id?: string
           is_public?: boolean | null
           last_modified_by?: string | null
