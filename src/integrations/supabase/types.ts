@@ -310,6 +310,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_member_of_channel: {
+        Args: { channel_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       user_permission: "admin" | "user"
