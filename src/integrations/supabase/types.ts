@@ -235,7 +235,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_access_document: {
+        Args: { document_id: string }
+        Returns: boolean
+      }
+      has_document_permission: {
+        Args: { document_id: string; permission_type: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
