@@ -24,9 +24,20 @@ import Activity from "./pages/Activity";
 
 const queryClient = new QueryClient();
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = ({ children }: { children: React.ReactNode }) => (
+  <SidebarProvider>
+    <div className="min-h-screen flex w-full">
+      <AppSidebar />
+      <main className="flex-1">
+        {children}
+      </main>
+    </div>
+  </SidebarProvider>
+);
+
+const AppRoutes = () => {
   const { loading } = useAuth();
-  
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -36,14 +47,22 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <AppSidebar />
-        <main className="flex-1">
-          {children}
-        </main>
-      </div>
-    </SidebarProvider>
+    <Routes>
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/" element={<ProtectedRoute><Layout><Index /></Layout></ProtectedRoute>} />
+      <Route path="/messages" element={<ProtectedRoute><Layout><Messages /></Layout></ProtectedRoute>} />
+      <Route path="/channel/:channelId" element={<ProtectedRoute><Layout><Channel /></Layout></ProtectedRoute>} />
+      <Route path="/dm/:userId" element={<ProtectedRoute><Layout><DirectMessage /></Layout></ProtectedRoute>} />
+      <Route path="/documents/:documentId" element={<ProtectedRoute><Layout><Documents /></Layout></ProtectedRoute>} />
+      <Route path="/knowledge-base" element={<ProtectedRoute><Layout><KnowledgeBase /></Layout></ProtectedRoute>} />
+      <Route path="/announcements" element={<ProtectedRoute><Layout><Announcements /></Layout></ProtectedRoute>} />
+      <Route path="/people" element={<ProtectedRoute><Layout><People /></Layout></ProtectedRoute>} />
+      <Route path="/activity" element={<ProtectedRoute><Layout><Activity /></Layout></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute><AdminRoute><Layout><Admin /></Layout></AdminRoute></ProtectedRoute>} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 
@@ -54,22 +73,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<ProtectedRoute><Layout><Index /></Layout></ProtectedRoute>} />
-            <Route path="/messages" element={<ProtectedRoute><Layout><Messages /></Layout></ProtectedRoute>} />
-            <Route path="/channel/:channelId" element={<ProtectedRoute><Layout><Channel /></Layout></ProtectedRoute>} />
-            <Route path="/dm/:userId" element={<ProtectedRoute><Layout><DirectMessage /></Layout></ProtectedRoute>} />
-            <Route path="/documents/:documentId" element={<ProtectedRoute><Layout><Documents /></Layout></ProtectedRoute>} />
-            <Route path="/knowledge-base" element={<ProtectedRoute><Layout><KnowledgeBase /></Layout></ProtectedRoute>} />
-            <Route path="/announcements" element={<ProtectedRoute><Layout><Announcements /></Layout></ProtectedRoute>} />
-            <Route path="/people" element={<ProtectedRoute><Layout><People /></Layout></ProtectedRoute>} />
-            <Route path="/activity" element={<ProtectedRoute><Layout><Activity /></Layout></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><AdminRoute><Layout><Admin /></Layout></AdminRoute></ProtectedRoute>} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
