@@ -18,7 +18,8 @@ import {
   Edit,
   Megaphone,
   BookOpen,
-  Activity
+  Activity,
+  Shield
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 
@@ -42,11 +43,13 @@ import { CreateChannelModal } from "@/components/modals/CreateChannelModal"
 import { CreateDocumentModal } from "@/components/modals/CreateDocumentModal"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
+import { useAdminAccess } from "@/hooks/useAdminAccess"
 import drystoreLogo from "@/assets/drystore-logo.png"
 
 export function AppSidebar() {
   const { state } = useSidebar()
   const { user } = useAuth()
+  const { isAdmin } = useAdminAccess()
   const location = useLocation()
   const currentPath = location.pathname
   
@@ -113,6 +116,7 @@ export function AppSidebar() {
     { title: "Conversas", url: "/messages", icon: MessageCircle },
     { title: "Pessoas", url: "/people", icon: Users },
     { title: "Atividades", url: "/activity", icon: Activity },
+    ...(isAdmin ? [{ title: "Administração", url: "/admin", icon: Shield }] : []),
   ]
 
   return (

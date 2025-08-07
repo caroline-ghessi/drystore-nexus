@@ -153,6 +153,33 @@ export type Database = {
         }
         Relationships: []
       }
+      job_positions: {
+        Row: {
+          created_at: string
+          department: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           channel_id: string | null
@@ -198,6 +225,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          job_position_id: string | null
           notifications_enabled: boolean | null
           status: string | null
           theme: string | null
@@ -210,6 +238,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          job_position_id?: string | null
           notifications_enabled?: boolean | null
           status?: string | null
           theme?: string | null
@@ -222,10 +251,40 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          job_position_id?: string | null
           notifications_enabled?: boolean | null
           status?: string | null
           theme?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_job_position_id_fkey"
+            columns: ["job_position_id"]
+            isOneToOne: false
+            referencedRelation: "job_positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          permission: Database["public"]["Enums"]["user_permission"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission?: Database["public"]["Enums"]["user_permission"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission?: Database["public"]["Enums"]["user_permission"]
           user_id?: string
         }
         Relationships: []
@@ -243,9 +302,17 @@ export type Database = {
         Args: { document_id: string; permission_type: string }
         Returns: boolean
       }
+      has_user_permission: {
+        Args: { user_id: string; permission_type: string }
+        Returns: boolean
+      }
+      is_current_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_permission: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -372,6 +439,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_permission: ["admin", "user"],
+    },
   },
 } as const
