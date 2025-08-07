@@ -28,7 +28,14 @@ export function CreateDocumentModal({ open, onOpenChange }: CreateDocumentModalP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar logado para criar documentos.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setLoading(true);
 

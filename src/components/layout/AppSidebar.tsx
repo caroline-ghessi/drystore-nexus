@@ -15,7 +15,10 @@ import {
   Archive,
   Search,
   MoreHorizontal,
-  Edit
+  Edit,
+  Megaphone,
+  BookOpen,
+  Activity
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 
@@ -118,10 +121,11 @@ export function AppSidebar() {
   // Primary navigation items
   const primaryNavItems = [
     { title: "Home", url: "/", icon: Home },
-    { title: "DMs", url: "/dms", icon: MessageCircle },
-    { title: "Activity", url: "/activity", icon: Bell },
-    { title: "Later", url: "/later", icon: Clock },
-    { title: "Options", url: "/options", icon: MoreHorizontal },
+    { title: "Comunicados", url: "/announcements", icon: Megaphone },
+    { title: "Base de Conhecimento", url: "/knowledge-base", icon: BookOpen },
+    { title: "Mensagens", url: "/dms", icon: MessageCircle },
+    { title: "Pessoas", url: "/people", icon: Users },
+    { title: "Atividades", url: "/activity", icon: Activity },
   ]
 
   return (
