@@ -19,11 +19,18 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 33% 23%;
 
-    /* Primary - Indigo vibrante mais amigável */
-    --primary: 231 91% 67%;      /* 6366f1 - Indigo vibrante */
+    /* Primary - Laranja Drystore */
+    --primary: 24 95% 53%;       /* #F97316 - Laranja principal Drystore */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 231 98% 62%; /* 4f46e5 - Hover mais escuro */
-    --primary-active: 239 84% 67%; /* 764ba2 - Active com toque purple */
+    --primary-hover: 24 100% 45%; /* #E56514 - Hover mais escuro */
+    --primary-active: 24 95% 40%; /* #CC5500 - Active ainda mais escuro */
+
+    /* Cores específicas Drystore */
+    --drystore-orange: 24 95% 53%;      /* #F97316 - Laranja principal */
+    --drystore-dark: 0 0% 23%;          /* #3A3A3A - Cinza escuro */
+    --drystore-medium: 0 0% 54%;        /* #8A8A8A - Cinza médio */
+    --drystore-light-gray: 220 13% 97%; /* #F8F9FA - Cinza claro */
+    --drystore-border: 210 17% 90%;     /* #E5E5E5 - Borda */
 
     /* Secondary - Tons suaves */
     --secondary: 215 28% 96%;    /* f1f5f9 - Cinza muito claro */
@@ -61,17 +68,17 @@ All colors MUST be HSL.
     /* Border radius - Drystore style */
     --radius: 0.75rem; /* 12px - Mais arredondado */
 
-    /* Sidebar specific colors - Modo claro e acolhedor */
+    /* Sidebar specific colors - Drystore Design */
     --sidebar-background: 0 0% 100%;      /* Branco limpo */
-    --sidebar-foreground: 222 33% 23%;   /* Texto escuro */
-    --sidebar-primary: 231 91% 67%;      /* Indigo para itens ativos */
+    --sidebar-foreground: 0 0% 23%;       /* #3A3A3A - Texto escuro Drystore */
+    --sidebar-primary: 24 95% 53%;        /* #F97316 - Laranja Drystore para itens ativos */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 97%;       /* Hover suave */
-    --sidebar-accent-foreground: 222 33% 23%;
-    --sidebar-border: 214 32% 91%;       /* Borda suave */
-    --sidebar-ring: 231 91% 67%;
-    --sidebar-muted: 214 32% 95%;        /* Fundo items */
-    --sidebar-muted-foreground: 215 14% 42%;
+    --sidebar-accent: 24 95% 95%;         /* rgba(249, 115, 22, 0.1) - Hover laranja claro */
+    --sidebar-accent-foreground: 24 95% 53%;
+    --sidebar-border: 24 95% 53%;         /* #F97316 - Borda laranja */
+    --sidebar-ring: 24 95% 53%;
+    --sidebar-muted: 220 13% 97%;         /* #F8F9FA - Fundo items */
+    --sidebar-muted-foreground: 0 0% 54%; /* #8A8A8A - Texto auxiliar */
 
     /* Chat specific colors - HSL format */
     --chat-background: 0 0% 100%;
@@ -85,11 +92,12 @@ All colors MUST be HSL.
     --status-busy: 0 84% 60%;
     --status-offline: 220 9% 65%;
 
-    /* Gradients - Modernos e vibrantes */
-    --gradient-primary: linear-gradient(135deg, hsl(231 91% 67%), hsl(259 70% 57%)); /* Indigo to Purple */
-    --gradient-secondary: linear-gradient(135deg, hsl(24 96% 53%), hsl(326 78% 66%)); /* Orange to Pink */
-    --gradient-hero: linear-gradient(135deg, hsl(24 96% 53%) 0%, hsl(326 78% 66%) 50%, hsl(259 70% 57%) 100%); /* Orange-Pink-Purple */
-    --gradient-card: linear-gradient(135deg, hsl(231 98% 62%) 0%, hsl(239 84% 67%) 100%); /* Blue gradient for cards */
+    /* Gradients - Drystore Theme */
+    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(24 100% 62%)); /* Laranja principal */
+    --gradient-secondary: linear-gradient(135deg, hsl(24 95% 53%), hsl(20 90% 48%)); /* Gradiente laranja */
+    --gradient-hero: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(20 90% 48%) 50%, hsl(15 85% 43%) 100%); /* Gradiente completo */
+    --gradient-card: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(24 100% 62%) 100%); /* Cards com gradiente laranja */
+    --gradient-drystore: linear-gradient(135deg, hsl(24 95% 53%), hsl(24 100% 70%)); /* Gradiente oficial Drystore */
     
     /* Shadows - Modernas e suaves */
     --shadow-soft: 0 1px 3px 0 hsl(0 0% 0% / 0.1);

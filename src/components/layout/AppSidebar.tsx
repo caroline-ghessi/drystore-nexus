@@ -46,6 +46,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { useAdminAccess } from "@/hooks/useAdminAccess"
 import drystoreLogo from "@/assets/drystore-logo.png"
+import { DrystoreCube } from "@/components/drystore/DrystoreCube"
 
 export function AppSidebar() {
   const { state } = useSidebar()
@@ -68,7 +69,7 @@ export function AppSidebar() {
     cn(
       "flex items-center gap-3 mx-2 px-4 py-3 rounded-xl transition-all duration-300 font-medium",
       isActive 
-        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-medium scale-105" 
+        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-medium font-semibold" 
         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:translate-x-1"
     )
 
@@ -126,41 +127,28 @@ export function AppSidebar() {
   return (
     <>
       <Sidebar
-        className="border-r border-sidebar-border bg-sidebar shadow-elegant rounded-r-3xl"
+        className="border-r-2 border-sidebar-border bg-sidebar shadow-elegant"
         collapsible="icon"
       >
         {/* Header with company info */}
-        <SidebarHeader className="border-b border-sidebar-border px-6 py-4">
+        <SidebarHeader className="border-b-2 border-sidebar-border px-6 py-4">
           <div className="flex items-center justify-between">
             {!isCollapsed ? (
               <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-medium">
-                    <img 
-                      src={drystoreLogo} 
-                      alt="Drystore" 
-                      className="h-7 w-7 object-contain"
-                    />
-                  </div>
-                </div>
+                <DrystoreCube size="lg" animated />
                 <div>
-                  <h1 className="text-xl font-bold text-sidebar-foreground">
-                    Drystore
+                  <h1 className="text-xl font-bold">
+                    <span className="text-sidebar-primary">Dry</span>
+                    <span className="text-sidebar-foreground">store</span>
                   </h1>
-                  <div className="flex items-center text-xs text-sidebar-muted-foreground">
+                  <div className="flex items-center text-xs text-sidebar-muted-foreground tracking-wider uppercase">
                     <div className="w-2 h-2 bg-status-online rounded-full mr-1.5 animate-pulse" />
                     Portal Interno
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-medium">
-                <img 
-                  src={drystoreLogo} 
-                  alt="Drystore" 
-                  className="h-6 w-6 object-contain"
-                />
-              </div>
+              <DrystoreCube size="md" animated />
             )}
           </div>
         </SidebarHeader>
