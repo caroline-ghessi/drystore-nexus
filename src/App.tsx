@@ -24,43 +24,47 @@ import Activity from "./pages/Activity";
 
 const queryClient = new QueryClient();
 
-const Layout = ({ children }: { children: React.ReactNode }) => (
-  <SidebarProvider>
-    <div className="min-h-screen flex w-full">
-      <AppSidebar />
-      <main className="flex-1">
-        {children}
-      </main>
-    </div>
-  </SidebarProvider>
-);
+function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
+    </SidebarProvider>
+  );
+}
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<ProtectedRoute><Layout><Index /></Layout></ProtectedRoute>} />
-            <Route path="/messages" element={<ProtectedRoute><Layout><Messages /></Layout></ProtectedRoute>} />
-            <Route path="/channel/:channelId" element={<ProtectedRoute><Layout><Channel /></Layout></ProtectedRoute>} />
-            <Route path="/dm/:userId" element={<ProtectedRoute><Layout><DirectMessage /></Layout></ProtectedRoute>} />
-            <Route path="/documents/:documentId" element={<ProtectedRoute><Layout><Documents /></Layout></ProtectedRoute>} />
-            <Route path="/knowledge-base" element={<ProtectedRoute><Layout><KnowledgeBase /></Layout></ProtectedRoute>} />
-            <Route path="/announcements" element={<ProtectedRoute><Layout><Announcements /></Layout></ProtectedRoute>} />
-            <Route path="/people" element={<ProtectedRoute><Layout><People /></Layout></ProtectedRoute>} />
-            <Route path="/activity" element={<ProtectedRoute><Layout><Activity /></Layout></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><AdminRoute><Layout><Admin /></Layout></AdminRoute></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/" element={<ProtectedRoute><Layout><Index /></Layout></ProtectedRoute>} />
+              <Route path="/messages" element={<ProtectedRoute><Layout><Messages /></Layout></ProtectedRoute>} />
+              <Route path="/channel/:channelId" element={<ProtectedRoute><Layout><Channel /></Layout></ProtectedRoute>} />
+              <Route path="/dm/:userId" element={<ProtectedRoute><Layout><DirectMessage /></Layout></ProtectedRoute>} />
+              <Route path="/documents/:documentId" element={<ProtectedRoute><Layout><Documents /></Layout></ProtectedRoute>} />
+              <Route path="/knowledge-base" element={<ProtectedRoute><Layout><KnowledgeBase /></Layout></ProtectedRoute>} />
+              <Route path="/announcements" element={<ProtectedRoute><Layout><Announcements /></Layout></ProtectedRoute>} />
+              <Route path="/people" element={<ProtectedRoute><Layout><People /></Layout></ProtectedRoute>} />
+              <Route path="/activity" element={<ProtectedRoute><Layout><Activity /></Layout></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminRoute><Layout><Admin /></Layout></AdminRoute></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
