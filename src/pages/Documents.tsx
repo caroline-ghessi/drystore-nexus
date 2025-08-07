@@ -3,12 +3,12 @@ import { useParams } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { RichTextEditor } from "@/components/editor/RichTextEditor"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { useToast } from "@/hooks/use-toast"
-import { CalendarDays, User, Tag, Download, Eye, Edit, Save, FileText, Calendar } from "lucide-react"
+import { Download, Eye, FileText, Calendar, User } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import { RichTextEditor } from "@/components/editor/RichTextEditor"
 
 // Mock documents data
 const documentsData: Record<string, {
@@ -184,20 +184,23 @@ export default function Documents() {
     
     setLoading(true)
     try {
+      // Seleciona apenas os campos reais da tabela (sem joins inexistentes)
       const { data, error } = await supabase
         .from('documents')
-        .select(`
-          *,
-          creator:created_by(display_name),
-          last_modifier:last_modified_by(display_name)
-        `)
+        .select('*')
         .eq('id', documentId)
         .single()
 
       if (error) throw error
       
       setDocument(data)
-      setContent(data.content ? (typeof data.content === 'string' ? data.content : JSON.stringify(data.content)) : '')
+      // Normaliza o conteúdo para exibição
+      const rawContent = data.content
+      setContent(
+        rawContent
+          ? (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent, null, 2))
+          : ''
+      )
     } catch (error: any) {
       toast({
         title: "Erro ao carregar documento",
@@ -221,7 +224,7 @@ export default function Documents() {
         .update({
           content: content,
           last_modified_by: user.id,
-          version: document.version + 1
+          version: (document.version || 1) + 1
         })
         .eq('id', document.id)
 
@@ -271,6 +274,9 @@ export default function Documents() {
     )
   }
 
+  const authorLabel = user?.id === document.created_by ? 'Você' : '—'
+  const tags: string[] = document.tags ?? []
+
   return (
     <div className="h-full bg-background">
       <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -281,11 +287,11 @@ export default function Documents() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <FileText className="h-6 w-6 text-primary" />
-                  <CardTitle className="text-2xl">{document.name}</CardTitle>
-                  <Badge variant="secondary">{document.category}</Badge>
+                  <CardTitle className="text-2xl">{document.title}</CardTitle>
+                  {document.category && <Badge variant="secondary">{document.category}</Badge>}
                 </div>
                 <CardDescription className="text-base">
-                  {document.description}
+                  {/* Não há descrição no schema atual; manter vazio ou usar categoria */}
                 </CardDescription>
               </div>
               <div className="flex space-x-2">
@@ -311,7 +317,7 @@ export default function Documents() {
                 <div>
                   <p className="text-sm font-medium">Última modificação</p>
                   <p className="text-sm text-muted-foreground">
-                    {document.lastModified.toLocaleDateString('pt-BR')}
+                    {document.updated_at ? new Date(document.updated_at).toLocaleDateString('pt-BR') : '-'}
                   </p>
                 </div>
               </div>
@@ -320,7 +326,7 @@ export default function Documents() {
                 <User className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Autor</p>
-                  <p className="text-sm text-muted-foreground">{document.author}</p>
+                  <p className="text-sm text-muted-foreground">{authorLabel}</p>
                 </div>
               </div>
               
@@ -328,7 +334,7 @@ export default function Documents() {
                 <FileText className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Versão</p>
-                  <p className="text-sm text-muted-foreground">{document.version}</p>
+                  <p className="text-sm text-muted-foreground">{document.version ?? 1}</p>
                 </div>
               </div>
             </div>
@@ -338,11 +344,15 @@ export default function Documents() {
             <div>
               <p className="text-sm font-medium mb-2">Tags</p>
               <div className="flex flex-wrap gap-2">
-                {document.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
+                {tags.length > 0 ? (
+                  tags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-sm text-muted-foreground">Sem tags</span>
+                )}
               </div>
             </div>
           </CardContent>
@@ -356,7 +366,7 @@ export default function Documents() {
           <CardContent>
             <div className="prose prose-sm max-w-none">
               <pre className="whitespace-pre-wrap text-sm leading-relaxed text-card-foreground">
-                {document.content}
+                {content}
               </pre>
             </div>
           </CardContent>

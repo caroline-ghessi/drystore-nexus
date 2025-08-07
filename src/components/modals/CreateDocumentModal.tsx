@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -46,7 +47,7 @@ export function CreateDocumentModal({ open, onOpenChange }: CreateDocumentModalP
         category: formData.category || null,
         content: { type: 'doc', content: [] }, // Empty TipTap document
         is_public: formData.isPublic,
-        created_by: currentUser.id,
+        // created_by removido: o trigger definirá corretamente para auth.uid()
       };
 
       const { data: document, error } = await supabase
@@ -67,7 +68,12 @@ export function CreateDocumentModal({ open, onOpenChange }: CreateDocumentModalP
 
       setFormData({ title: '', category: '', isPublic: false });
       onOpenChange(false);
-      navigate(`/documents/${document.id}`);
+      if (document?.id) {
+        navigate(`/documents/${document.id}`);
+      } else {
+        // fallback seguro caso o retorno seja filtrado por RLS (não esperado com as políticas atuais)
+        navigate(`/knowledge-base`);
+      }
     } catch (error: any) {
       toast({
         title: "Erro ao criar documento",
