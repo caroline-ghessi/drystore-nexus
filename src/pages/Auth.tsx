@@ -70,7 +70,7 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
-            <img src="/src/assets/drystore-logo.png" alt="Drystore" className="h-12 w-auto" />
+            <img src="/lovable-uploads/c630143a-447e-4378-a16d-fcb1a27cf490.png" alt="DryStore logo" className="h-12 w-auto" />
           </div>
           <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             Bem-vindo à Drystore
