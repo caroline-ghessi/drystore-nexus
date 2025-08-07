@@ -9,7 +9,7 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Base colors - Modern and friendly */
-    --background: 248 250% 99%; /* f8fafc - Branco muito suave */
+    --background: 210 40% 98%; /* f8fafc - Branco muito suave */
     --foreground: 222 33% 23%;  /* 1e293b - Texto principal */
 
     /* Card and surface colors */

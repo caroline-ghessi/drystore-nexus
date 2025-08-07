@@ -1,3 +1,4 @@
+@tailwind components;
 /* Sidebar Contrast Overrides - scoped to .sidebar-scope to avoid global side effects */
 @layer components {
   .sidebar-scope a,
