@@ -52,12 +52,9 @@ export function AppSidebar() {
   
   const [channelsExpanded, setChannelsExpanded] = useState(true)
   const [dmExpanded, setDmExpanded] = useState(true)
-  const [docsExpanded, setDocsExpanded] = useState(false)
   const [createChannelOpen, setCreateChannelOpen] = useState(false)
-  const [createDocumentOpen, setCreateDocumentOpen] = useState(false)
   
   const [channels, setChannels] = useState<any[]>([])
-  const [documents, setDocuments] = useState<any[]>([])
   const [profiles, setProfiles] = useState<any[]>([])
   const [userProfile, setUserProfile] = useState<any>(null)
 
@@ -71,7 +68,6 @@ export function AppSidebar() {
   useEffect(() => {
     if (user) {
       fetchChannels()
-      fetchDocuments()
       fetchProfiles()
       fetchUserProfile()
     }
@@ -86,15 +82,6 @@ export function AppSidebar() {
     if (data) setChannels(data)
   }
 
-  const fetchDocuments = async () => {
-    const { data } = await supabase
-      .from('documents')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(10)
-    
-    if (data) setDocuments(data)
-  }
 
   const fetchProfiles = async () => {
     const { data } = await supabase
@@ -123,7 +110,7 @@ export function AppSidebar() {
     { title: "Home", url: "/", icon: Home },
     { title: "Comunicados", url: "/announcements", icon: Megaphone },
     { title: "Base de Conhecimento", url: "/knowledge-base", icon: BookOpen },
-    { title: "Mensagens", url: "/dms", icon: MessageCircle },
+    { title: "Conversas", url: "/messages", icon: MessageCircle },
     { title: "Pessoas", url: "/people", icon: Users },
     { title: "Atividades", url: "/activity", icon: Activity },
   ]
@@ -300,7 +287,7 @@ export function AppSidebar() {
                   <ChevronRight className="h-4 w-4 mr-1" />
                 )}
                 {!isCollapsed && (
-                  <span className="font-medium text-sm uppercase tracking-wide">Mensagens Diretas</span>
+                  <span className="font-medium text-sm uppercase tracking-wide">Conversas</span>
                 )}
               </Button>
             </div>
@@ -338,61 +325,6 @@ export function AppSidebar() {
             )}
           </SidebarGroup>
 
-          {/* Documents */}
-          <SidebarGroup>
-            <div className="px-4 py-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start p-0 h-6 text-sidebar-muted-foreground hover:text-sidebar-foreground"
-                onClick={() => setDocsExpanded(!docsExpanded)}
-              >
-                {docsExpanded ? (
-                  <ChevronDown className="h-4 w-4 mr-1" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 mr-1" />
-                )}
-                {!isCollapsed && (
-                  <span className="font-medium text-sm uppercase tracking-wide">Documentos</span>
-                )}
-              </Button>
-            </div>
-            
-            {docsExpanded && (
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {documents.map((doc) => (
-                    <SidebarMenuItem key={doc.id}>
-                      <SidebarMenuButton asChild>
-                        <NavLink 
-                          to={`/documents/${doc.id}`} 
-                          className={getNavCls}
-                        >
-                          <FileText className="h-4 w-4" />
-                          {!isCollapsed && (
-                            <span className="truncate">{doc.title}</span>
-                          )}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                  {!isCollapsed && (
-                    <SidebarMenuItem>
-                      <SidebarMenuButton asChild>
-                        <button 
-                          onClick={() => setCreateDocumentOpen(true)}
-                          className="w-full flex items-center text-left text-sidebar-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 pl-4 border-l-4 border-transparent rounded-l-none"
-                        >
-                          <Plus className="h-4 w-4" />
-                          <span>Adicionar documento</span>
-                        </button>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            )}
-          </SidebarGroup>
         </SidebarContent>
 
         {/* Footer */}
@@ -425,10 +357,6 @@ export function AppSidebar() {
         open={createChannelOpen} 
         onOpenChange={setCreateChannelOpen}
         onChannelCreated={fetchChannels}
-      />
-      <CreateDocumentModal 
-        open={createDocumentOpen} 
-        onOpenChange={setCreateDocumentOpen}
       />
     </>
   )

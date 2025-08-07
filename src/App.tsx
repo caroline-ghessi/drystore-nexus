@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Channel from "./pages/Channel";
 import DirectMessage from "./pages/DirectMessage";
 import Documents from "./pages/Documents";
+import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -40,6 +41,7 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<ProtectedRoute><Layout><Index /></Layout></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute><Layout><Messages /></Layout></ProtectedRoute>} />
             <Route path="/channel/:channelId" element={<ProtectedRoute><Layout><Channel /></Layout></ProtectedRoute>} />
             <Route path="/dm/:userId" element={<ProtectedRoute><Layout><DirectMessage /></Layout></ProtectedRoute>} />
             <Route path="/documents/:documentId" element={<ProtectedRoute><Layout><Documents /></Layout></ProtectedRoute>} />

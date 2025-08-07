@@ -157,7 +157,7 @@ export default function KnowledgeBase() {
             
             <Button onClick={() => setCreateModalOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
-              Novo Documento
+              Criar Documento
             </Button>
           </div>
 
