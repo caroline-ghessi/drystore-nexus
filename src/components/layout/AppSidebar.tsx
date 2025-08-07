@@ -47,6 +47,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useAdminAccess } from "@/hooks/useAdminAccess"
 import drystoreLogo from "@/assets/drystore-logo.png"
 import { DrystoreCube } from "@/components/drystore/DrystoreCube"
+import "@/styles/sidebar-contrast.css"
 
 export function AppSidebar() {
   const { state } = useSidebar()
@@ -127,7 +128,7 @@ export function AppSidebar() {
   return (
     <>
       <Sidebar
-        className="border-r-2 border-sidebar-border bg-sidebar shadow-elegant"
+        className="border-r-2 border-sidebar-border bg-sidebar shadow-elegant sidebar-scope"
         collapsible="icon"
       >
         {/* Header with company info */}

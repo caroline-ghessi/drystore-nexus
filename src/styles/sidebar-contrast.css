@@ -1,0 +1,29 @@
+/* Sidebar Contrast Overrides - scoped to .sidebar-scope to avoid global side effects */
+@layer components {
+  .sidebar-scope a,
+  .sidebar-scope button,
+  .sidebar-scope [role="button"],
+  .sidebar-scope .nav-link,
+  .sidebar-scope [data-sidebar="menu-button"] {
+    color: hsl(var(--sidebar-foreground)) !important;
+    font-weight: 500;
+  }
+
+  .sidebar-scope [data-sidebar="group-label"],
+  .sidebar-scope .section-title,
+  .sidebar-scope h3 {
+    color: hsl(var(--sidebar-muted-foreground)) !important;
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .sidebar-scope a:hover,
+  .sidebar-scope button:hover,
+  .sidebar-scope [role="button"]:hover,
+  .sidebar-scope [data-sidebar="menu-button"]:hover {
+    color: hsl(var(--sidebar-primary)) !important;
+    background-color: hsl(var(--sidebar-accent)) !important;
+  }
+}
