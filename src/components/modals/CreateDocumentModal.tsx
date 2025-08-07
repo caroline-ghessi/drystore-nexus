@@ -45,7 +45,8 @@ export function CreateDocumentModal({ open, onOpenChange }: CreateDocumentModalP
         title: formData.title,
         category: formData.category || null,
         content: { type: 'doc', content: [] }, // Empty TipTap document
-        is_public: formData.isPublic
+        is_public: formData.isPublic,
+        created_by: currentUser.id,
       };
 
       const { data: document, error } = await supabase
