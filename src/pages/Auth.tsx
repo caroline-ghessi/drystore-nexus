@@ -72,10 +72,17 @@ export default function Auth() {
           <div className="mx-auto mb-4">
             <img src="/src/assets/drystore-logo.png" alt="Drystore" className="h-12 w-auto" />
           </div>
-          <CardTitle>Bem-vindo ao Drystore</CardTitle>
-          <CardDescription>
-            Faça login ou crie sua conta para continuar
+          <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            Bem-vindo à Drystore
+          </CardTitle>
+          <CardDescription className="text-base">
+            Sua central de comunicação corporativa
           </CardDescription>
+          <div className="mt-4 p-4 bg-primary/5 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              🚀 Conecte-se com sua equipe, acesse documentos e mantenha-se atualizado com as novidades da empresa.
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
