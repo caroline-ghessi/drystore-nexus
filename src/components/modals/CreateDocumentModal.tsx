@@ -28,18 +28,19 @@ export function CreateDocumentModal({ open, onOpenChange }: CreateDocumentModalP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast({
-        title: "Erro de autenticação",
-        description: "Você precisa estar logado para criar documentos.",
-        variant: "destructive",
-      });
-      return;
-    }
     
     setLoading(true);
 
     try {
+      // Verificar autenticação em tempo real
+      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !currentUser) {
+        throw new Error("Você precisa estar logado para criar documentos.");
+      }
+
+      console.log('Creating document with user:', currentUser.id);
+      
       const { data: document, error } = await supabase
         .from('documents')
         .insert({
@@ -47,13 +48,16 @@ export function CreateDocumentModal({ open, onOpenChange }: CreateDocumentModalP
           category: formData.category || null,
           content: { type: 'doc', content: [] }, // Empty TipTap document
           is_public: formData.isPublic,
-          created_by: user.id,
-          last_modified_by: user.id
+          created_by: currentUser.id,
+          last_modified_by: currentUser.id
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
 
       toast({
         title: "Documento criado!",
