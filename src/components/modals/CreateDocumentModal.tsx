@@ -41,17 +41,17 @@ export function CreateDocumentModal({ open, onOpenChange }: CreateDocumentModalP
 
       console.log('Creating document with user:', currentUser.id);
       
+      const payload = {
+        title: formData.title,
+        category: formData.category || null,
+        content: { type: 'doc', content: [] }, // Empty TipTap document
+        is_public: formData.isPublic
+      };
+
       const { data: document, error } = await supabase
         .from('documents')
-        .insert({
-          title: formData.title,
-          category: formData.category || null,
-          content: { type: 'doc', content: [] }, // Empty TipTap document
-          is_public: formData.isPublic,
-          created_by: currentUser.id,
-          last_modified_by: currentUser.id
-        })
-        .select()
+        .insert(payload as any)
+        .select('id')
         .single();
 
       if (error) {
