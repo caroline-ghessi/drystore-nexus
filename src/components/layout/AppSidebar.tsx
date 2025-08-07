@@ -247,7 +247,7 @@ export function AppSidebar() {
                       <SidebarMenuButton asChild>
                         <button 
                           onClick={() => setCreateChannelOpen(true)}
-                          className="w-full flex items-center text-left text-sidebar-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 pl-4 border-l-4 border-transparent rounded-l-none"
+                          className="w-full flex items-center gap-2 text-left text-sidebar-accent-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent pl-4 py-2 rounded-xl font-medium transition-all"
                         >
                           <Plus className="h-4 w-4" />
                           <span>Adicionar canal</span>
@@ -321,13 +321,18 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/settings" 
-                    className="hover:bg-sidebar-accent text-sidebar-muted-foreground hover:text-sidebar-foreground border-l-4 border-transparent rounded-l-none"
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>Configurações</span>
-                  </NavLink>
+                    <NavLink 
+                      to="/settings" 
+                      className={({ isActive }) => cn(
+                        "flex items-center gap-3 px-4 py-2 rounded-xl font-medium transition-all",
+                        isActive 
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      )}
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Configurações</span>
+                    </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
