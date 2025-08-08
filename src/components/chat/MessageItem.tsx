@@ -66,9 +66,12 @@ export function MessageItem({
       message.mentions.forEach((mention: any) => {
         if (typeof mention === 'object' && mention.display_name) {
           const mentionPattern = new RegExp(`@${mention.display_name}`, 'g')
+          const mentionClass = isCurrentUser 
+            ? "mention bg-white/20 text-white px-1 rounded font-medium"
+            : "mention bg-primary/10 text-primary px-1 rounded font-medium"
           processedContent = processedContent.replace(
             mentionPattern,
-            `<span class="mention bg-primary/10 text-primary px-1 rounded font-medium">@${mention.display_name}</span>`
+            `<span class="${mentionClass}">@${mention.display_name}</span>`
           )
         }
       })
@@ -227,11 +230,11 @@ export function MessageItem({
             <div className="max-w-[70%] min-w-0">
               {replyToMessage && (
                 <div className="mb-2 mr-2">
-                  <div className="text-xs text-primary-foreground/70 mb-1 pl-2 border-l-2 border-primary-foreground/30">
+                  <div className="text-xs text-white/80 mb-1 pl-2 border-l-2 border-white/30">
                     <div className="flex items-center gap-1">
                       <span className="font-medium">{replyToMessage.display_name || 'Usuário'}</span>
                     </div>
-                    <div className="text-primary-foreground/60 truncate max-w-xs">
+                    <div className="text-white/70 truncate max-w-xs">
                       {(() => {
                         const cleanText = extractCleanText(replyToMessage.content)
                         return cleanText.length > 40 ? cleanText.slice(0, 40) + '...' : cleanText
@@ -241,8 +244,8 @@ export function MessageItem({
                 </div>
               )}
               
-              <div className="bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-2">
-                <div className="text-xs text-primary-foreground/70 mb-1 text-right">
+              <div className="bg-blue-500 text-white rounded-2xl rounded-br-md px-4 py-2">
+                <div className="text-xs text-white/80 mb-1 text-right">
                   {formatTime(message.created_at)}
                   {message.edited && (
                     <span className="ml-2">editado</span>
