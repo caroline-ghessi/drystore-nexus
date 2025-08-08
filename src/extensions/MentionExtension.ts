@@ -151,6 +151,23 @@ export function createMentionSuggestion(searchMembers: (query: string) => Mentio
       return results
     },
 
+    // Importante: comando responsável por inserir o nó de menção
+    command: ({ editor, range, props }: any) => {
+      try {
+        console.log('Suggestion.command: inserindo menção', { range, props })
+        editor
+          .chain()
+          .focus()
+          .insertContentAt(range, [
+            { type: 'mention', attrs: { id: props.id, label: props.label } },
+            { type: 'text', text: ' ' },
+          ])
+          .run()
+      } catch (e) {
+        console.error('Suggestion.command erro:', e)
+      }
+    },
+
     render: () => {
       let component: ReactRenderer<MentionListRef>
       let popup: any
@@ -170,8 +187,8 @@ export function createMentionSuggestion(searchMembers: (query: string) => Mentio
                   console.log('Command executado com sucesso, resultado:', result)
                   
                   // Fechar o popup após inserir a menção
-                  if (popup) {
-                    popup.hide()
+                  if (popup && popup[0]) {
+                    popup[0].hide()
                     console.log('Popup fechado após inserção da menção')
                   }
                 } catch (error) {
