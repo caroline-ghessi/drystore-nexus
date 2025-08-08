@@ -267,6 +267,32 @@ export default function Documents() {
     }
   }
 
+  // AutoSave (não fecha o modo de edição)
+  const handleAutoSave = async () => {
+    if (!document || !user) return
+    try {
+      let newContent: any = content
+      try { newContent = JSON.parse(content) } catch {}
+      await supabase
+        .from('documents')
+        .update({
+          content: newContent,
+          version: (document.version || 1) + 1
+        } as any)
+        .eq('id', document.id)
+    } catch (error) {
+      console.error('[Documents] AutoSave error:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (!editing) return
+    const id = setTimeout(() => {
+      if (content) handleAutoSave()
+    }, 1500)
+    return () => clearTimeout(id)
+  }, [content, editing])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
