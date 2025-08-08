@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
@@ -15,6 +15,8 @@ import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import EmojiPicker from 'emoji-picker-react'
 import { cn } from '@/lib/utils'
+import 'tippy.js/dist/tippy.css'
+import 'tippy.js/themes/light-border.css'
 
 interface MessageRichEditorProps {
   onSendMessage: (content: string, attachments?: any[], replyToId?: string, mentions?: any[]) => void
@@ -46,6 +48,22 @@ export function MessageRichEditor({
   const { members, searchMembers } = useChannelMembers(channelId)
   const { replyTo, cancelReply, clearReply } = useReplies()
 
+  // Carregar tippy.js dinamicamente
+  useEffect(() => {
+    const loadTippy = async () => {
+      if (typeof (window as any).tippy === 'undefined') {
+        try {
+          const tippy = await import('tippy.js')
+          ;(window as any).tippy = tippy.default || tippy
+          console.log('Tippy.js carregado com sucesso')
+        } catch (error) {
+          console.error('Erro ao carregar tippy.js:', error)
+        }
+      }
+    }
+    loadTippy()
+  }, [])
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -66,13 +84,9 @@ export function MessageRichEditor({
       Placeholder.configure({
         placeholder,
       }),
-      // Adicionar menções apenas se tippy.js estiver disponível
-      ...(typeof window !== 'undefined' && (window as any).tippy 
-        ? [Mention.configure({
-            suggestion: createMentionSuggestion(searchMembers),
-          })]
-        : []
-      ),
+      Mention.configure({
+        suggestion: createMentionSuggestion(searchMembers),
+      }),
     ],
     content: '',
     editorProps: {

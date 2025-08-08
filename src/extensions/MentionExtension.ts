@@ -141,6 +141,9 @@ export const Mention = Node.create<MentionOptions>({
 
 export function createMentionSuggestion(searchMembers: (query: string) => MentionUser[]) {
   return {
+    char: '@',
+    startOfLine: false,
+    allowSpaces: false,
     items: ({ query }: { query: string; editor: any }) => {
       return searchMembers(query).slice(0, 10)
     },
@@ -160,21 +163,33 @@ export function createMentionSuggestion(searchMembers: (query: string) => Mentio
             return
           }
 
-          // Verificar se tippy está disponível
+          // Importar tippy dinamicamente se não estiver disponível
           if (typeof (window as any).tippy !== 'function') {
-            console.warn('Tippy.js não está carregado, menções não funcionarão')
+            import('tippy.js').then((tippy) => {
+              (window as any).tippy = tippy.default || tippy
+              createPopup()
+            }).catch(() => {
+              console.warn('Tippy.js não pôde ser carregado, menções não funcionarão')
+            })
             return
           }
 
-          popup = (window as any).tippy('body', {
-            getReferenceClientRect: props.clientRect,
-            appendTo: () => document.body,
-            content: component.element,
-            showOnCreate: true,
-            interactive: true,
-            trigger: 'manual',
-            placement: 'bottom-start',
-          })
+          createPopup()
+
+          function createPopup() {
+            popup = (window as any).tippy('body', {
+              getReferenceClientRect: props.clientRect,
+              appendTo: () => document.body,
+              content: component.element,
+              showOnCreate: true,
+              interactive: true,
+              trigger: 'manual',
+              placement: 'bottom-start',
+              arrow: false,
+              theme: 'light-border',
+              maxWidth: 'none',
+            })
+          }
         },
 
         onUpdate(props: any) {
