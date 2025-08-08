@@ -25,9 +25,14 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
     }, [items])
 
     const selectItem = (index: number) => {
+      console.log('selectItem chamado com index:', index, 'items disponíveis:', items.length)
       const item = items[index]
       if (item) {
+        console.log('Selecionando item:', item.display_name, 'user_id:', item.user_id)
         command(item)
+        console.log('Command executado para:', item.display_name)
+      } else {
+        console.log('Item não encontrado no index:', index)
       }
     }
 
@@ -72,7 +77,16 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
                 ? 'bg-accent text-accent-foreground'
                 : 'hover:bg-accent hover:text-accent-foreground'
             }`}
-            onClick={() => selectItem(index)}
+            onClick={(e) => {
+              console.log('Clique detectado no botão do usuário:', item.display_name)
+              e.preventDefault()
+              e.stopPropagation()
+              selectItem(index)
+            }}
+            onMouseDown={(e) => {
+              console.log('MouseDown detectado para:', item.display_name)
+              e.preventDefault()
+            }}
           >
             <Avatar className="w-6 h-6">
               <AvatarImage src={item.avatar_url || undefined} />

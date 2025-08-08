@@ -161,11 +161,22 @@ export function createMentionSuggestion(searchMembers: (query: string) => Mentio
             props: {
               ...props,
               command: (item: MentionUser) => {
-                console.log('Inserindo menção para:', item.display_name)
-                props.command({
-                  id: item.user_id,
-                  label: item.display_name || 'Usuário'
-                })
+                console.log('Command iniciado para usuário:', item.display_name, 'ID:', item.user_id)
+                try {
+                  const result = props.command({
+                    id: item.user_id,
+                    label: item.display_name || 'Usuário'
+                  })
+                  console.log('Command executado com sucesso, resultado:', result)
+                  
+                  // Fechar o popup após inserir a menção
+                  if (popup) {
+                    popup.hide()
+                    console.log('Popup fechado após inserção da menção')
+                  }
+                } catch (error) {
+                  console.error('Erro ao executar command:', error)
+                }
               }
             },
             editor: props.editor,
