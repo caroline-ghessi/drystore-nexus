@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { formatTime, formatDate, extractCleanText } from '@/lib/utils'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { supabase } from '@/integrations/supabase/client'
 
 interface MessageItemProps {
   message: {
@@ -45,6 +46,7 @@ export function MessageItem({
 }: MessageItemProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [preview, setPreview] = useState<{ type: 'image' | 'video'; url: string; name?: string } | null>(null)
+  const [failedUrls, setFailedUrls] = useState<Set<string>>(new Set())
   const displayName = author.display_name || 'Usuário'
 
   const renderContent = (content: string) => {
@@ -97,7 +99,11 @@ export function MessageItem({
                 key={index}
                 type="button"
                 className="group relative cursor-zoom-in"
-                onClick={() => setPreview({ type: 'image', url, name })}
+                onClick={(e) => {
+                  const img = e.currentTarget.querySelector('img')
+                  const currentUrl = img?.src || url
+                  setPreview({ type: 'image', url: currentUrl, name })
+                }}
               >
                 <img
                   src={url}
@@ -106,8 +112,20 @@ export function MessageItem({
                   loading="lazy"
                   onError={(e) => {
                     const img = e.currentTarget as HTMLImageElement
-                    img.onerror = null
-                    img.src = '/placeholder.svg'
+                    const currentUrl = img.src
+                    
+                    if (!failedUrls.has(currentUrl) && attachment.id) {
+                      // Tenta URL temporária uma vez
+                      const tempPath = `temp/${attachment.id}`
+                      const { data } = supabase.storage.from('message_attachments').getPublicUrl(tempPath)
+                      
+                      setFailedUrls(prev => new Set([...prev, currentUrl]))
+                      img.src = data.publicUrl
+                    } else {
+                      // Fallback final
+                      img.onerror = null
+                      img.src = '/placeholder.svg'
+                    }
                   }}
                 />
               </button>
@@ -120,7 +138,11 @@ export function MessageItem({
                 key={index}
                 type="button"
                 className="group relative cursor-zoom-in"
-                onClick={() => setPreview({ type: 'video', url, name })}
+                onClick={(e) => {
+                  const video = e.currentTarget.querySelector('video')
+                  const currentUrl = video?.src || url
+                  setPreview({ type: 'video', url: currentUrl, name })
+                }}
               >
                 <video
                   src={url}
@@ -128,6 +150,19 @@ export function MessageItem({
                   muted
                   playsInline
                   preload="metadata"
+                  onError={(e) => {
+                    const video = e.currentTarget as HTMLVideoElement
+                    const currentUrl = video.src
+                    
+                    if (!failedUrls.has(currentUrl) && attachment.id) {
+                      // Tenta URL temporária uma vez
+                      const tempPath = `temp/${attachment.id}`
+                      const { data } = supabase.storage.from('message_attachments').getPublicUrl(tempPath)
+                      
+                      setFailedUrls(prev => new Set([...prev, currentUrl]))
+                      video.src = data.publicUrl
+                    }
+                  }}
                 />
               </button>
             )
@@ -247,6 +282,13 @@ export function MessageItem({
 
        <Dialog open={!!preview} onOpenChange={(open) => { if (!open) setPreview(null) }}>
          <DialogContent className="max-w-4xl">
+           <DialogTitle className="sr-only">
+             Preview de {preview?.type === 'image' ? 'Imagem' : 'Vídeo'}
+           </DialogTitle>
+           <DialogDescription className="sr-only">
+             Visualizando anexo: {preview?.name || 'arquivo de mídia'}
+           </DialogDescription>
+           
            <div className="flex items-center justify-between mb-2">
              <div className="text-sm text-muted-foreground truncate">{preview?.name || 'Arquivo'}</div>
              {preview?.url && (
