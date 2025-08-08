@@ -158,7 +158,16 @@ export function createMentionSuggestion(searchMembers: (query: string) => Mentio
       return {
         onStart: (props: any) => {
           component = new ReactRenderer(MentionList, {
-            props,
+            props: {
+              ...props,
+              command: (item: MentionUser) => {
+                console.log('Inserindo menção para:', item.display_name)
+                props.command({
+                  id: item.user_id,
+                  label: item.display_name || 'Usuário'
+                })
+              }
+            },
             editor: props.editor,
           })
 
