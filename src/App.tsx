@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AuthProvider } from "@/hooks/useAuth";
+import { AutoJoinHandler } from "@/components/auth/AutoJoinHandler";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import Index from "./pages/Index";
@@ -41,6 +42,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <AutoJoinHandler />
         <TooltipProvider>
           <Toaster />
           <Sonner />
