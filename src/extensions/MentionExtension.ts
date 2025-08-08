@@ -12,7 +12,7 @@ interface MentionUser {
 export interface MentionOptions {
   HTMLAttributes: Record<string, any>
   suggestion: {
-    items: (query: string) => MentionUser[]
+    items: (props: { query: string; editor: any }) => MentionUser[]
     render: () => {
       onStart: (props: any) => void
       onUpdate: (props: any) => void
@@ -141,8 +141,8 @@ export const Mention = Node.create<MentionOptions>({
 
 export function createMentionSuggestion(searchMembers: (query: string) => MentionUser[]) {
   return {
-    items: (props: { query: string; editor: any }) => {
-      return searchMembers(props.query).slice(0, 10)
+    items: ({ query }: { query: string; editor: any }) => {
+      return searchMembers(query).slice(0, 10)
     },
 
     render: () => {
