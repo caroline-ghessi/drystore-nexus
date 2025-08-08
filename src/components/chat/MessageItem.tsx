@@ -34,6 +34,12 @@ interface MessageItemProps {
   onReply?: (message: any) => void
   showDateSeparator?: boolean
   isCurrentUser?: boolean
+  // New props for replies UX
+  repliesCount?: number
+  lastReplyId?: string
+  onJumpToMessage?: (id: string) => void
+  registerMessageRef?: (id: string, el: HTMLDivElement | null) => void
+  isHighlighted?: boolean
 }
 
 export function MessageItem({
@@ -43,7 +49,12 @@ export function MessageItem({
   currentUserId,
   onReply,
   showDateSeparator,
-  isCurrentUser
+  isCurrentUser,
+  repliesCount,
+  lastReplyId,
+  onJumpToMessage,
+  registerMessageRef,
+  isHighlighted
 }: MessageItemProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [preview, setPreview] = useState<{ type: 'image' | 'video'; url: string; name?: string } | null>(null)
@@ -205,6 +216,7 @@ export function MessageItem({
           className="group px-4 py-2 transition-colors"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          ref={(el) => registerMessageRef?.(message.id, el)}
         >
           <div className="flex justify-end">
             <div className={`transition-opacity mr-2 flex items-start pt-1 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
@@ -228,29 +240,32 @@ export function MessageItem({
             </div>
             
             <div className="max-w-[70%] min-w-0">
-              {replyToMessage && (
-                <div className="mb-2 mr-2">
-                  <div className="text-xs text-gray-600 mb-1 pl-2 border-l-2 border-orange-300">
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">{replyToMessage.display_name || 'Usuário'}</span>
-                    </div>
-                    <div className="text-gray-500 truncate max-w-xs">
-                      {(() => {
-                        const cleanText = extractCleanText(replyToMessage.content)
-                        return cleanText.length > 40 ? cleanText.slice(0, 40) + '...' : cleanText
-                      })()}
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <div className="bg-orange-100 text-gray-900 rounded-2xl rounded-br-md px-4 py-2">
+              <div className={`bg-orange-100 text-gray-900 rounded-2xl rounded-br-md px-4 py-2 ${isHighlighted ? 'ring-2 ring-primary/50 animate-pulse' : ''}`}>
                 <div className="text-xs text-gray-600 mb-1 text-right">
                   {formatTime(message.created_at)}
                   {message.edited && (
                     <span className="ml-2">editado</span>
                   )}
                 </div>
+
+                {replyToMessage && (
+                  <button
+                    type="button"
+                    className="mb-2 w-full text-left rounded-md bg-muted/50 border-l-2 border-primary/50 px-3 py-2 hover:bg-muted/70 focus:outline-none"
+                    onClick={() => onJumpToMessage?.(replyToMessage.id)}
+                    aria-label="Ir para mensagem respondida"
+                  >
+                    <div className="text-xs font-medium text-primary mb-1">
+                      {replyToMessage.display_name || 'Usuário'}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {(() => {
+                        const cleanText = extractCleanText(replyToMessage.content)
+                        return cleanText.length > 80 ? cleanText.slice(0, 80) + '...' : cleanText
+                      })()}
+                    </div>
+                  </button>
+                )}
                 
                 <div className="break-words">
                   {renderContent(message.content)}
@@ -262,6 +277,17 @@ export function MessageItem({
                   </div>
                 )}
               </div>
+
+              {repliesCount && repliesCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => lastReplyId && onJumpToMessage?.(lastReplyId)}
+                  className="mt-1 text-xs text-primary hover:underline ml-auto block"
+                  aria-label="Ver respostas"
+                >
+                  {repliesCount} {repliesCount === 1 ? 'resposta' : 'respostas'}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -271,27 +297,8 @@ export function MessageItem({
           className="group hover:bg-muted/30 px-4 py-2 transition-colors"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          ref={(el) => registerMessageRef?.(message.id, el)}
         >
-          {replyToMessage && (
-            <div className="ml-12 mb-2 pl-4 border-l-2 border-border/60">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-md px-2 py-1">
-                <Avatar className="w-4 h-4">
-                  <AvatarImage src={replyToMessage.avatar_url || undefined} />
-                  <AvatarFallback className="text-xs">
-                    {(replyToMessage.display_name || 'U').charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="font-medium text-foreground">{replyToMessage.display_name || 'Usuário'}</span>
-                <span className="truncate max-w-xs text-muted-foreground">
-                  {(() => {
-                    const cleanText = extractCleanText(replyToMessage.content)
-                    return cleanText.length > 50 ? cleanText.slice(0, 50) + '...' : cleanText
-                  })()}
-                </span>
-              </div>
-            </div>
-          )}
-
           <div className="flex gap-3">
             <Avatar className="w-10 h-10 flex-shrink-0">
               <AvatarImage src={author.avatar_url || undefined} />
@@ -315,7 +322,25 @@ export function MessageItem({
                 )}
               </div>
               
-              <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2">
+              <div className={`bg-muted rounded-2xl rounded-bl-md px-4 py-2 ${isHighlighted ? 'ring-2 ring-primary/50 animate-pulse' : ''}`}>
+                {replyToMessage && (
+                  <button
+                    type="button"
+                    className="mb-2 w-full text-left rounded-md bg-muted/50 border-l-2 border-primary/50 px-3 py-2 hover:bg-muted/70 focus:outline-none"
+                    onClick={() => onJumpToMessage?.(replyToMessage.id)}
+                    aria-label="Ir para mensagem respondida"
+                  >
+                    <div className="text-xs font-medium text-primary mb-1">
+                      {replyToMessage.display_name || 'Usuário'}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {(() => {
+                        const cleanText = extractCleanText(replyToMessage.content)
+                        return cleanText.length > 80 ? cleanText.slice(0, 80) + '...' : cleanText
+                      })()}
+                    </div>
+                  </button>
+                )}
                 <div className="text-foreground break-words">
                   {renderContent(message.content)}
                 </div>
@@ -326,6 +351,17 @@ export function MessageItem({
                   </div>
                 )}
               </div>
+
+              {repliesCount && repliesCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => lastReplyId && onJumpToMessage?.(lastReplyId)}
+                  className="mt-1 text-xs text-primary hover:underline text-left"
+                  aria-label="Ver respostas"
+                >
+                  {repliesCount} {repliesCount === 1 ? 'resposta' : 'respostas'}
+                </button>
+              )}
             </div>
             
             <div className={`transition-opacity flex items-start pt-1 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>

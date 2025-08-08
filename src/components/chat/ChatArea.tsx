@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect, useState, useMemo } from "react"
 import { Hash, Lock, Loader2, UserPlus, ChevronDown } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserStatus } from "@/components/ui/user-status"
@@ -27,6 +27,26 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const viewportRef = useRef<HTMLDivElement>(null)
   const [showScrollToBottom, setShowScrollToBottom] = useState(false)
+
+  const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  const [highlightedId, setHighlightedId] = useState<string | null>(null)
+
+  const registerMessageRef = (id: string, el: HTMLDivElement | null) => {
+    const map = messageRefs.current
+    if (el) map.set(id, el)
+    else map.delete(id)
+  }
+
+  const onJumpToMessage = (id: string) => {
+    const el = messageRefs.current.get(id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setHighlightedId(id)
+      window.setTimeout(() => {
+        setHighlightedId((prev) => (prev === id ? null : prev))
+      }, 1600)
+    }
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -82,6 +102,20 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
       return date.toLocaleDateString('pt-BR')
     }
   }
+
+  const replyInfo = useMemo(() => {
+    const map = new Map<string, { count: number; lastId: string }>()
+    for (const m of messages) {
+      const parentId = (m as any).reply_to_id as string | undefined
+      if (parentId) {
+        const info = map.get(parentId) || { count: 0, lastId: '' }
+        info.count += 1
+        info.lastId = m.id
+        map.set(parentId, info)
+      }
+    }
+    return map
+  }, [messages])
 
   return (
     <div className="flex flex-col h-full bg-chat-background relative">
@@ -164,6 +198,7 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
                 formatDate(message.created_at) !== formatDate(messages[index - 1].created_at)
               
               const isCurrentUser = message.user_id === user?.id
+              const info = replyInfo.get(message.id)
               
               return (
                 <MessageItem
@@ -175,6 +210,11 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
                   onReply={startReply}
                   showDateSeparator={showDateSeparator}
                   isCurrentUser={isCurrentUser}
+                  repliesCount={info?.count}
+                  lastReplyId={info?.lastId}
+                  onJumpToMessage={onJumpToMessage}
+                  registerMessageRef={registerMessageRef}
+                  isHighlighted={highlightedId === message.id}
                 />
               )
             })
