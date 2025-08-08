@@ -1,5 +1,5 @@
-import { useRef, useEffect } from "react"
-import { Hash, Lock, Loader2, UserPlus } from "lucide-react"
+import { useRef, useEffect, useState } from "react"
+import { Hash, Lock, Loader2, UserPlus, ChevronDown } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserStatus } from "@/components/ui/user-status"
 import { Button } from "@/components/ui/button"
@@ -25,6 +25,8 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
   const { joinChannel } = useChannels()
   const { isMember, loading: membershipLoading, setIsMember } = useChannelMembership(channelId)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -33,6 +35,20 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    const el = viewportRef.current
+    if (!el) return
+    const onScroll = () => {
+      const distanceFromBottom = el.scrollHeight - (el.scrollTop + el.clientHeight)
+      setShowScrollToBottom(distanceFromBottom > 100)
+    }
+    el.addEventListener('scroll', onScroll)
+    onScroll()
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+    }
+  }, [viewportRef, messages.length])
 
   const handleSendMessage = (content: string, attachments?: any[], replyToId?: string, mentions?: any[]) => {
     sendMessage(content, attachments, replyToId, mentions)
@@ -68,7 +84,7 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
   }
 
   return (
-    <div className="flex flex-col h-full bg-chat-background">
+    <div className="flex flex-col h-full bg-chat-background relative">
       {/* Slack-style Header */}
       <div className="border-b border-border px-6 py-4 bg-background">
         <div className="flex items-center justify-between">
@@ -109,8 +125,8 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
       </div>
 
       {/* Messages Area - Slack style */}
-      <ScrollArea className="flex-1 px-6">
-        <div className="py-4">
+      <ScrollArea className="flex-1 px-6" viewportRef={viewportRef}>
+        <div className="py-4 pb-28">
           {loading || membershipLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -167,8 +183,17 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
         </div>
       </ScrollArea>
 
+      {showScrollToBottom && (
+        <div className="absolute bottom-28 right-6 z-50">
+          <Button size="icon" className="rounded-full shadow-lg" onClick={scrollToBottom} aria-label="Ir para as mensagens mais recentes">
+            <ChevronDown className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
+
+
       {/* Message Input */}
-      <div className="px-6 pb-6">
+      <div className="sticky bottom-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t px-6 pb-6 pt-3">
         {(!isDM && isMember === false) ? (
           <div className="text-center py-4 text-muted-foreground text-sm">
             {isPrivate 
