@@ -10,6 +10,7 @@ import { Download, Eye, FileText, Calendar, User } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { RichTextEditor } from "@/components/editor/RichTextEditor"
 import { useAdminAccess } from "@/hooks/useAdminAccess"
+import { AttachmentsSection } from "@/components/documents/AttachmentsSection"
 
 // Mock documents data
 const documentsData: Record<string, {
@@ -458,6 +459,9 @@ export default function Documents() {
             )}
           </CardContent>
         </Card>
+
+        {/* Attachments Section */}
+        <AttachmentsSection documentId={documentId!} canEdit={canEdit} />
       </div>
     </div>
   )
