@@ -15,6 +15,7 @@ export function useChannelMembers(channelId: string) {
     if (!channelId) return
 
     const fetchMembers = async () => {
+      console.log('Iniciando carregamento de membros para canal:', channelId)
       setLoading(true)
       try {
         const { data, error } = await supabase.rpc('get_channel_members', {
@@ -22,12 +23,14 @@ export function useChannelMembers(channelId: string) {
         })
 
         if (error) throw error
+        console.log('Membros carregados:', data?.length || 0, 'membros')
         setMembers(data || [])
       } catch (error) {
         console.error('Error fetching channel members:', error)
         setMembers([])
       } finally {
         setLoading(false)
+        console.log('Carregamento de membros finalizado')
       }
     }
 

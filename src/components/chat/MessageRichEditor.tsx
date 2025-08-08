@@ -45,7 +45,7 @@ export function MessageRichEditor({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   
-  const { members, searchMembers } = useChannelMembers(channelId)
+  const { members, loading: membersLoading, searchMembers } = useChannelMembers(channelId)
   const { replyTo, cancelReply, clearReply } = useReplies()
 
   // Carregar tippy.js dinamicamente
@@ -64,6 +64,7 @@ export function MessageRichEditor({
     loadTippy()
   }, [])
 
+  // Só criar o editor após carregar os membros
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -94,7 +95,21 @@ export function MessageRichEditor({
         class: 'prose prose-sm sm:prose-base max-w-none focus:outline-none min-h-[40px] max-h-[200px] overflow-y-auto p-3 text-sm',
       },
     },
-  })
+  }, [membersLoading]) // Recriar editor quando membersLoading mudar
+
+  // Reconfigurar extensão de menção quando membros mudarem
+  useEffect(() => {
+    if (editor && !membersLoading && members.length > 0) {
+      console.log('Reconfigurando extensão de menção com', members.length, 'membros')
+      
+      // Reconfigurar a extensão Mention
+      editor.extensionManager.extensions.forEach((extension) => {
+        if (extension.name === 'mention') {
+          extension.options.suggestion = createMentionSuggestion(searchMembers)
+        }
+      })
+    }
+  }, [editor, members, membersLoading, searchMembers])
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
