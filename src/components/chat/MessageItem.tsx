@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Reply } from 'lucide-react'
+import { Reply, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { formatTime, formatDate, extractCleanText } from '@/lib/utils'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 interface MessageItemProps {
   message: {
@@ -43,6 +44,7 @@ export function MessageItem({
   isCurrentUser
 }: MessageItemProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const [preview, setPreview] = useState<{ type: 'image' | 'video'; url: string; name?: string } | null>(null)
   const displayName = author.display_name || 'Usuário'
 
   const renderContent = (content: string) => {
@@ -78,27 +80,63 @@ export function MessageItem({
 
     return (
       <div className="flex flex-wrap gap-2 mt-2">
-        {message.attachments.map((attachment: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 bg-muted p-2 rounded-lg">
-            {attachment.type?.startsWith('image/') ? (
-              <img
-                src={attachment.url}
-                alt={attachment.name}
-                className="max-w-xs max-h-48 rounded"
-                loading="lazy"
-              />
-            ) : (
-              <a
-                href={attachment.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
+        {message.attachments.map((attachment: any, index: number) => {
+          const isImage = attachment.type?.startsWith('image/')
+          const isVideo = attachment.type?.startsWith('video/')
+
+          if (isImage) {
+            return (
+              <button
+                key={index}
+                type="button"
+                className="group relative"
+                onClick={() => setPreview({ type: 'image', url: attachment.url, name: attachment.name })}
               >
-                📎 {attachment.name}
-              </a>
-            )}
-          </div>
-        ))}
+                <img
+                  src={attachment.url}
+                  alt={`Imagem: ${attachment.name || 'anexo'}`}
+                  className="h-32 w-auto rounded-md object-cover shadow-sm"
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'
+                  }}
+                />
+              </button>
+            )
+          }
+
+          if (isVideo) {
+            return (
+              <button
+                key={index}
+                type="button"
+                className="group relative"
+                onClick={() => setPreview({ type: 'video', url: attachment.url, name: attachment.name })}
+              >
+                <video
+                  src={attachment.url}
+                  className="h-32 w-auto rounded-md shadow-sm"
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+              </button>
+            )
+          }
+
+          return (
+            <a
+              key={index}
+              href={attachment.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline flex items-center gap-2"
+              download
+            >
+              📎 {attachment.name}
+            </a>
+          )
+        })}
       </div>
     )
   }

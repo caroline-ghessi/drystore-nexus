@@ -95,6 +95,15 @@ export function useMessages(channelId: string) {
               }
             }
 
+            // Normaliza URLs públicas dos anexos (caso antigas ainda apontem para temp)
+            if (message.attachments && message.attachments.length > 0) {
+              message.attachments = message.attachments.map((att: any) => {
+                const path = `${msg.id}/${att.id}`
+                const { data } = supabase.storage.from('message_attachments').getPublicUrl(path)
+                return { ...att, url: data.publicUrl, path }
+              })
+            }
+
             return message
           })
         )
@@ -153,6 +162,15 @@ export function useMessages(channelId: string) {
             replyToMessage: null
           }
 
+          // Normaliza URLs públicas dos anexos imediatamente
+          if (newMessage.attachments && newMessage.attachments.length > 0) {
+            newMessage.attachments = newMessage.attachments.map((att: any) => {
+              const path = `${payload.new.id}/${att.id}`
+              const { data } = supabase.storage.from('message_attachments').getPublicUrl(path)
+              return { ...att, url: data.publicUrl, path }
+            })
+          }
+
           // Fetch reply-to message if it exists
           if (payload.new.reply_to_id) {
             const { data: replyMessage } = await supabase
@@ -196,7 +214,11 @@ export function useMessages(channelId: string) {
               msg.id === payload.new.id ? {
                 ...msg,
                 ...payload.new,
-                attachments: Array.isArray(payload.new.attachments) ? payload.new.attachments : [],
+                attachments: (Array.isArray(payload.new.attachments) ? payload.new.attachments.map((att: any) => {
+                  const path = `${payload.new.id}/${att.id}`
+                  const { data } = supabase.storage.from('message_attachments').getPublicUrl(path)
+                  return { ...att, url: data.publicUrl, path }
+                }) : []),
                 mentions: Array.isArray(payload.new.mentions) ? payload.new.mentions : [],
                 edited: Boolean(payload.new.edited)
               } : msg
@@ -244,8 +266,9 @@ export function useMessages(channelId: string) {
 
       if (error) throw error
 
-      // If there are attachments, move them from temp folder to message folder
+      // If there are attachments, move them from temp folder to message folder e atualizar URLs públicas
       if (attachments && attachments.length > 0 && newMessage) {
+        const updatedAttachments: any[] = []
         for (const attachment of attachments) {
           const oldPath = `temp/${attachment.id}`
           const newPath = `${newMessage.id}/${attachment.id}`
@@ -254,7 +277,19 @@ export function useMessages(channelId: string) {
           await supabase.storage
             .from('message_attachments')
             .move(oldPath, newPath)
+
+          // Gerar URL pública e compor metadados atualizados
+          const { data } = supabase.storage
+            .from('message_attachments')
+            .getPublicUrl(newPath)
+          updatedAttachments.push({ ...attachment, url: data.publicUrl, path: newPath })
         }
+
+        // Atualiza o registro da mensagem com as URLs finais
+        await supabase
+          .from('messages')
+          .update({ attachments: updatedAttachments })
+          .eq('id', newMessage.id)
       }
     } catch (error) {
       console.error('Error sending message:', error)
