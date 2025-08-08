@@ -66,9 +66,13 @@ export function MessageRichEditor({
       Placeholder.configure({
         placeholder,
       }),
-      Mention.configure({
-        suggestion: createMentionSuggestion(searchMembers),
-      }),
+      // Adicionar menções apenas se tippy.js estiver disponível
+      ...(typeof window !== 'undefined' && (window as any).tippy 
+        ? [Mention.configure({
+            suggestion: createMentionSuggestion(searchMembers),
+          })]
+        : []
+      ),
     ],
     content: '',
     editorProps: {
@@ -160,36 +164,49 @@ export function MessageRichEditor({
     }
   }
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!editor) return
 
-    const content = editor.getHTML()
-    const textContent = editor.getText().trim()
+    try {
+      const content = editor.getHTML()
+      const textContent = editor.getText().trim()
 
-    // Don't send empty messages unless there are attachments
-    if (!textContent && attachments.length === 0) return
+      // Don't send empty messages unless there are attachments
+      if (!textContent && attachments.length === 0) return
 
-    // Extract mentions from editor content
-    const mentions: any[] = []
-    editor.state.doc.descendants((node) => {
-      if (node.type.name === 'mention') {
-        const member = members.find(m => m.user_id === node.attrs.id)
-        if (member) {
-          mentions.push({
-            user_id: member.user_id,
-            display_name: member.display_name
-          })
+      console.log('Enviando mensagem:', { content, textContent, attachmentsCount: attachments.length })
+
+      // Extract mentions from editor content
+      const mentions: any[] = []
+      editor.state.doc.descendants((node) => {
+        if (node.type.name === 'mention') {
+          const member = members.find(m => m.user_id === node.attrs.id)
+          if (member) {
+            mentions.push({
+              user_id: member.user_id,
+              display_name: member.display_name
+            })
+          }
         }
-      }
-    })
+      })
 
-    // Send message with content, attachments, reply and mentions
-    onSendMessage(content, attachments, replyTo?.id, mentions)
+      console.log('Menções extraídas:', mentions)
 
-    // Clear editor and attachments
-    editor.commands.clearContent()
-    setAttachments([])
-    clearReply()
+      // Send message with content, attachments, reply and mentions
+      await onSendMessage(content, attachments, replyTo?.id, mentions)
+
+      // Clear editor and attachments
+      editor.commands.clearContent()
+      setAttachments([])
+      clearReply()
+    } catch (error) {
+      console.error('Erro no handleSend:', error)
+      toast({
+        title: "Erro ao enviar mensagem",
+        description: "Não foi possível enviar a mensagem. Tente novamente.",
+        variant: "destructive",
+      })
+    }
   }
 
   const formatFileSize = (bytes: number) => {

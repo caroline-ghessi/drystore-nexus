@@ -215,6 +215,9 @@ export function useMessages(channelId: string) {
     if (!user || (!content.trim() && (!attachments || attachments.length === 0))) return
 
     try {
+      console.log('sendMessage - Dados do usuário:', { userId: user.id, email: user.email })
+      console.log('sendMessage - Verificando canal:', channelId)
+
       // Create the message first to get the ID
       const messageData: any = {
         content: content.trim() || '',
@@ -229,11 +232,15 @@ export function useMessages(channelId: string) {
         messageData.attachments = attachments
       }
 
+      console.log('sendMessage - Dados da mensagem:', messageData)
+
       const { data: newMessage, error } = await supabase
         .from('messages')
         .insert(messageData)
         .select()
         .single()
+
+      console.log('sendMessage - Resposta do Supabase:', { data: newMessage, error })
 
       if (error) throw error
 
@@ -251,6 +258,12 @@ export function useMessages(channelId: string) {
       }
     } catch (error) {
       console.error('Error sending message:', error)
+      console.error('Error details:', {
+        message: (error as any)?.message,
+        details: (error as any)?.details,
+        hint: (error as any)?.hint,
+        code: (error as any)?.code
+      })
       toast({
         title: "Erro ao enviar mensagem",
         description: "Não foi possível enviar a mensagem. Tente novamente.",
