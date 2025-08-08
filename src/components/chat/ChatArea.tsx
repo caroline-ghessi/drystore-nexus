@@ -1,11 +1,14 @@
 import { useRef, useEffect } from "react"
-import { Hash, Lock, Loader2, Paperclip } from "lucide-react"
+import { Hash, Lock, Loader2, Paperclip, UserPlus } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserStatus } from "@/components/ui/user-status"
+import { Button } from "@/components/ui/button"
 import { MessageRichEditor } from "./MessageRichEditor"
 import { useReplies } from "@/hooks/useReplies"
 import { useMessages } from "@/hooks/useMessages"
 import { useAuth } from "@/hooks/useAuth"
+import { useChannels } from "@/hooks/useChannels"
+import { useChannelMembership } from "@/hooks/useChannelMembership"
 
 interface ChatAreaProps {
   channelId: string
@@ -18,6 +21,8 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
   const { messages, loading, sendMessage } = useMessages(channelId)
   const { user } = useAuth()
   const { startReply } = useReplies()
+  const { joinChannel } = useChannels()
+  const { isMember, loading: membershipLoading, setIsMember } = useChannelMembership(channelId)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -30,6 +35,13 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
 
   const handleSendMessage = (content: string, attachments?: any[], replyToId?: string, mentions?: any[]) => {
     sendMessage(content, attachments, replyToId, mentions)
+  }
+
+  const handleJoinChannel = async () => {
+    const success = await joinChannel(channelId)
+    if (success) {
+      setIsMember(true)
+    }
   }
 
   const formatTime = (dateString: string) => {
@@ -98,9 +110,31 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
       {/* Messages Area - Slack style */}
       <ScrollArea className="flex-1 px-6">
         <div className="py-4">
-          {loading ? (
+          {loading || membershipLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : !isDM && isMember === false && !isPrivate ? (
+            <div className="text-center py-8">
+              <div className="max-w-md mx-auto">
+                <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Você não é membro deste canal
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Este é um canal público. Clique no botão abaixo para entrar e participar das conversas.
+                </p>
+                <Button onClick={handleJoinChannel} className="mx-auto">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Entrar no Canal
+                </Button>
+              </div>
+            </div>
+          ) : !isDM && isMember === false && isPrivate ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Lock className="h-12 w-12 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Canal Privado</h3>
+              <p>Este canal é privado. Você precisa ser convidado para participar.</p>
             </div>
           ) : messages.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
@@ -200,11 +234,20 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
 
       {/* Message Input */}
       <div className="px-6 pb-6">
-        <MessageRichEditor
-          onSendMessage={handleSendMessage}
-          placeholder={`Mensagem ${isDM ? channelName : `#${channelName}`}`}
-          channelId={channelId}
-        />
+        {(!isDM && isMember === false) ? (
+          <div className="text-center py-4 text-muted-foreground text-sm">
+            {isPrivate 
+              ? "Você precisa ser membro para enviar mensagens neste canal privado."
+              : "Entre no canal para enviar mensagens."
+            }
+          </div>
+        ) : (
+          <MessageRichEditor
+            onSendMessage={handleSendMessage}
+            placeholder={`Mensagem ${isDM ? channelName : `#${channelName}`}`}
+            channelId={channelId}
+          />
+        )}
       </div>
     </div>
   )

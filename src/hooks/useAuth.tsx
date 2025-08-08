@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useAutoJoinChannels } from '@/hooks/useAutoJoinChannels';
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +18,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Auto-join nos canais públicos quando usuário faz login
+  useAutoJoinChannels();
 
   useEffect(() => {
     // Get initial session

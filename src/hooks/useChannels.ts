@@ -11,6 +11,7 @@ export interface Channel {
   created_by: string
   created_at: string
   updated_at: string
+  is_member?: boolean // Adicionar flag para indicar se é membro
 }
 
 export function useChannels() {
@@ -104,6 +105,13 @@ export function useChannels() {
 
       if (error) throw error
 
+      // Atualizar estado local
+      setChannels(prev => prev.map(channel => 
+        channel.id === channelId 
+          ? { ...channel, is_member: true }
+          : channel
+      ))
+
       toast({
         title: "Canal entrado",
         description: "Você entrou no canal com sucesso.",
@@ -121,10 +129,34 @@ export function useChannels() {
     }
   }
 
+  const checkChannelMembership = async (channelId: string) => {
+    if (!user) return false
+
+    try {
+      const { data, error } = await supabase
+        .from('channel_members')
+        .select('id')
+        .eq('channel_id', channelId)
+        .eq('user_id', user.id)
+        .single()
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking membership:', error)
+        return false
+      }
+
+      return !!data
+    } catch (error) {
+      console.error('Error checking membership:', error)
+      return false
+    }
+  }
+
   return {
     channels,
     loading,
     createChannel,
-    joinChannel
+    joinChannel,
+    checkChannelMembership
   }
 }
