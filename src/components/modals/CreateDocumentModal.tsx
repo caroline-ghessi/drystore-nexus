@@ -40,26 +40,28 @@ export function CreateDocumentModal({ open, onOpenChange }: CreateDocumentModalP
         throw new Error("Você precisa estar logado para criar documentos.");
       }
 
-      console.log('Creating document with user:', currentUser.id);
+      console.log('[CreateDocumentModal] Creating document with user:', currentUser.id);
       
       const payload = {
         title: formData.title,
         category: formData.category || null,
-        content: { type: 'doc', content: [] }, // Empty TipTap document
+        content: { type: 'doc', content: [] }, // JSON vazio (TipTap)
         is_public: formData.isPublic,
-        // created_by removido: o trigger definirá corretamente para auth.uid()
+        // created_by e last_modified_by são definidos via trigger
       };
 
       const { data: document, error } = await supabase
         .from('documents')
         .insert(payload as any)
-        .select('id')
+        .select('id') // SELECT pós-insert (precisa passar na RLS de SELECT)
         .single();
 
       if (error) {
-        console.error('Database error:', error);
+        console.error('[CreateDocumentModal] Database error on insert:', error);
         throw error;
       }
+
+      console.log('[CreateDocumentModal] Document created:', document);
 
       toast({
         title: "Documento criado!",
@@ -68,16 +70,18 @@ export function CreateDocumentModal({ open, onOpenChange }: CreateDocumentModalP
 
       setFormData({ title: '', category: '', isPublic: false });
       onOpenChange(false);
+
       if (document?.id) {
         navigate(`/documents/${document.id}`);
       } else {
-        // fallback seguro caso o retorno seja filtrado por RLS (não esperado com as políticas atuais)
+        console.warn('[CreateDocumentModal] Insert succeeded but no id returned, redirecting to /knowledge-base');
         navigate(`/knowledge-base`);
       }
     } catch (error: any) {
+      console.error('[CreateDocumentModal] Error creating document:', error);
       toast({
         title: "Erro ao criar documento",
-        description: error.message,
+        description: error?.message || 'Ocorreu um erro desconhecido.',
         variant: "destructive",
       });
     } finally {

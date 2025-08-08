@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Download, Eye, FileText, Calendar, User } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { RichTextEditor } from "@/components/editor/RichTextEditor"
+import { useAdminAccess } from "@/hooks/useAdminAccess"
 
 // Mock documents data
 const documentsData: Record<string, {
@@ -166,6 +167,7 @@ A Drystore foi fundada com o objetivo de revolucionar o armazenamento de dados..
 export default function Documents() {
   const { documentId } = useParams<{ documentId: string }>()
   const { user } = useAuth()
+  const { isAdmin } = useAdminAccess()
   const { toast } = useToast()
   const [document, setDocument] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -184,24 +186,26 @@ export default function Documents() {
     
     setLoading(true)
     try {
-      // Seleciona apenas os campos reais da tabela (sem joins inexistentes)
+      console.log('[Documents] Fetching document:', documentId)
       const { data, error } = await supabase
         .from('documents')
         .select('*')
         .eq('id', documentId)
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       
       setDocument(data)
       // Normaliza o conteúdo para exibição
-      const rawContent = data.content
+      const rawContent = data?.content
       setContent(
         rawContent
           ? (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent, null, 2))
           : ''
       )
+      console.log('[Documents] Loaded document:', data)
     } catch (error: any) {
+      console.error('[Documents] Error fetching document:', error)
       toast({
         title: "Erro ao carregar documento",
         description: error.message,
@@ -212,23 +216,37 @@ export default function Documents() {
     }
   }
 
-  const canEdit = document && (document.created_by === user?.id || document.is_public)
+  // Admin pode editar qualquer documento; caso contrário, apenas dono (ou políticas específicas futuras)
+  const canEdit = !!document && (isAdmin || document.created_by === user?.id)
 
   const handleSave = async () => {
     if (!document || !user) return
     
     setSaving(true)
     try {
+      // Tenta salvar conteúdo como JSON válido; se falhar, salva como string (Postgres converte texto -> jsonb se válido)
+      let newContent: any = content
+      try {
+        newContent = JSON.parse(content)
+      } catch {
+        // mantém como string; útil caso o conteúdo não seja JSON válido
+      }
+
+      console.log('[Documents] Saving document:', document.id, { version: (document.version || 1) + 1 })
+
       const { error } = await supabase
         .from('documents')
         .update({
-          content: content,
-          last_modified_by: user.id,
+          content: newContent,
+          // last_modified_by é definido pelo trigger em UPDATE
           version: (document.version || 1) + 1
-        })
+        } as any)
         .eq('id', document.id)
 
-      if (error) throw error
+      if (error) {
+        console.error('[Documents] Database error on update:', error)
+        throw error
+      }
 
       toast({
         title: "Documento salvo!",
@@ -238,6 +256,7 @@ export default function Documents() {
       setEditing(false)
       fetchDocument() // Refresh data
     } catch (error: any) {
+      console.error('[Documents] Error saving document:', error)
       toast({
         title: "Erro ao salvar",
         description: error.message,
@@ -360,15 +379,45 @@ export default function Documents() {
 
         {/* Document Content */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Conteúdo do Documento</CardTitle>
+            {canEdit && (
+              <div className="flex items-center gap-2">
+                {!editing ? (
+                  <Button size="sm" onClick={() => setEditing(true)}>
+                    Editar
+                  </Button>
+                ) : (
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => { setEditing(false); fetchDocument(); }}>
+                      Cancelar
+                    </Button>
+                    <Button size="sm" onClick={handleSave} disabled={saving}>
+                      {saving && <span className="mr-2 animate-spin">⏳</span>}
+                      Salvar
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm max-w-none">
-              <pre className="whitespace-pre-wrap text-sm leading-relaxed text-card-foreground">
-                {content}
-              </pre>
-            </div>
+            {!editing ? (
+              <div className="prose prose-sm max-w-none">
+                <pre className="whitespace-pre-wrap text-sm leading-relaxed text-card-foreground">
+                  {content}
+                </pre>
+              </div>
+            ) : (
+              <div className="prose prose-sm max-w-none">
+                {/* Simples textarea para edição do JSON/bruto; futura integração com editor rico */}
+                <textarea
+                  className="w-full min-h-[300px] rounded-md border p-3 text-sm"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
