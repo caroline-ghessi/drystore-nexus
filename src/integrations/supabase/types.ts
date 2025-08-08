@@ -356,6 +356,15 @@ export type Database = {
         Args: { document_id: string }
         Returns: boolean
       }
+      debug_channel_membership: {
+        Args: { channel_id_param: string }
+        Returns: {
+          current_user_id: string
+          channel_id: string
+          is_member: boolean
+          member_count: number
+        }[]
+      }
       get_channel_members: {
         Args: { channel_id: string }
         Returns: {
