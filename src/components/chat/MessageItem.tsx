@@ -3,7 +3,7 @@ import { Reply } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { formatTime, formatDate } from '@/lib/utils'
+import { formatTime, formatDate, extractCleanText } from '@/lib/utils'
 
 interface MessageItemProps {
   message: {
@@ -50,6 +50,12 @@ export function MessageItem({
     
     let processedContent = content
     
+    // Clean up empty p tags and extra whitespace
+    processedContent = processedContent
+      .replace(/<p><\/p>/g, '') // Remove empty p tags
+      .replace(/<p>\s*<\/p>/g, '') // Remove p tags with only whitespace
+      .trim()
+    
     // Process mentions
     if (message.mentions && message.mentions.length > 0) {
       message.mentions.forEach((mention: any) => {
@@ -57,7 +63,7 @@ export function MessageItem({
           const mentionPattern = new RegExp(`@${mention.display_name}`, 'g')
           processedContent = processedContent.replace(
             mentionPattern,
-            `<span class="mention bg-primary/10 text-primary px-1 rounded">@${mention.display_name}</span>`
+            `<span class="mention bg-primary/10 text-primary px-1 rounded font-medium">@${mention.display_name}</span>`
           )
         }
       })
@@ -114,19 +120,22 @@ export function MessageItem({
       >
         {/* Reply thread line */}
         {replyToMessage && (
-          <div className="ml-12 mb-2 pl-4 border-l-2 border-muted">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="ml-12 mb-2 pl-4 border-l-2 border-border/60">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-md px-2 py-1">
               <Avatar className="w-4 h-4">
                 <AvatarImage src={replyToMessage.avatar_url || undefined} />
                 <AvatarFallback className="text-xs">
                   {(replyToMessage.display_name || 'U').charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="font-medium">{replyToMessage.display_name || 'Usuário'}</span>
-              <span className="truncate max-w-xs">
-                {replyToMessage.content.length > 50 
-                  ? replyToMessage.content.slice(0, 50) + '...' 
-                  : replyToMessage.content}
+              <span className="font-medium text-foreground">{replyToMessage.display_name || 'Usuário'}</span>
+              <span className="truncate max-w-xs text-muted-foreground">
+                {(() => {
+                  const cleanText = extractCleanText(replyToMessage.content)
+                  return cleanText.length > 50 
+                    ? cleanText.slice(0, 50) + '...' 
+                    : cleanText
+                })()}
               </span>
             </div>
           </div>

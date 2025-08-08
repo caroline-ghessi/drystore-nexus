@@ -31,3 +31,20 @@ export function formatDate(dateString: string): string {
     })
   }
 }
+
+export function extractCleanText(htmlContent: string): string {
+  if (!htmlContent) return ''
+  
+  // Remove HTML tags and decode entities
+  const text = htmlContent
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+    .replace(/&amp;/g, '&') // Replace &amp; with &
+    .replace(/&lt;/g, '<') // Replace &lt; with <
+    .replace(/&gt;/g, '>') // Replace &gt; with >
+    .replace(/&quot;/g, '"') // Replace &quot; with "
+    .replace(/&#39;/g, "'") // Replace &#39; with '
+    .trim()
+  
+  return text
+}
