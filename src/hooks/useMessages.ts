@@ -11,6 +11,8 @@ export interface Message {
   created_at: string
   updated_at: string
   edited: boolean
+  attachments?: any[]
+  content_type?: string
 }
 
 export function useMessages(channelId: string) {
@@ -32,7 +34,10 @@ export function useMessages(channelId: string) {
           .order('created_at', { ascending: true })
 
         if (error) throw error
-        setMessages(data || [])
+        setMessages((data || []).map(msg => ({
+          ...msg,
+          attachments: Array.isArray(msg.attachments) ? msg.attachments : []
+        })))
       } catch (error) {
         console.error('Error loading messages:', error)
         toast({
@@ -89,19 +94,42 @@ export function useMessages(channelId: string) {
     }
   }, [channelId])
 
-  const sendMessage = async (content: string) => {
-    if (!user || !content.trim()) return
+  const sendMessage = async (content: string, attachments?: any[]) => {
+    if (!user || (!content.trim() && (!attachments || attachments.length === 0))) return
 
     try {
-      const { error } = await supabase
+      // Create the message first to get the ID
+      const messageData: any = {
+        content: content.trim() || '',
+        user_id: user.id,
+        channel_id: channelId,
+        content_type: content.includes('<') ? 'rich' : 'text'
+      }
+
+      if (attachments && attachments.length > 0) {
+        messageData.attachments = attachments
+      }
+
+      const { data: newMessage, error } = await supabase
         .from('messages')
-        .insert({
-          content: content.trim(),
-          user_id: user.id,
-          channel_id: channelId
-        })
+        .insert(messageData)
+        .select()
+        .single()
 
       if (error) throw error
+
+      // If there are attachments, move them from temp folder to message folder
+      if (attachments && attachments.length > 0 && newMessage) {
+        for (const attachment of attachments) {
+          const oldPath = `temp/${attachment.id}`
+          const newPath = `${newMessage.id}/${attachment.id}`
+          
+          // Move file to message-specific folder
+          await supabase.storage
+            .from('message_attachments')
+            .move(oldPath, newPath)
+        }
+      }
     } catch (error) {
       console.error('Error sending message:', error)
       toast({

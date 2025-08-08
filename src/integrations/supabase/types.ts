@@ -221,8 +221,10 @@ export type Database = {
       }
       messages: {
         Row: {
+          attachments: Json | null
           channel_id: string | null
           content: string
+          content_type: string | null
           created_at: string
           edited: boolean | null
           id: string
@@ -230,8 +232,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          attachments?: Json | null
           channel_id?: string | null
           content: string
+          content_type?: string | null
           created_at?: string
           edited?: boolean | null
           id?: string
@@ -239,8 +243,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          attachments?: Json | null
           channel_id?: string | null
           content?: string
+          content_type?: string | null
           created_at?: string
           edited?: boolean | null
           id?: string
@@ -336,6 +342,10 @@ export type Database = {
       can_access_document: {
         Args: { document_id: string }
         Returns: boolean
+      }
+      get_document_id_from_path: {
+        Args: { path: string }
+        Returns: string
       }
       has_document_permission: {
         Args: { document_id: string; permission_type: string }

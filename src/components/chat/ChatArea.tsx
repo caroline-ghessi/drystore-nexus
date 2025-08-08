@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect } from "react"
-import { Send, Paperclip, Smile, Hash, Lock, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
+import { useRef, useEffect } from "react"
+import { Hash, Lock, Loader2, Paperclip } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserStatus } from "@/components/ui/user-status"
+import { MessageRichEditor } from "./MessageRichEditor"
 import { useMessages } from "@/hooks/useMessages"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -16,7 +15,6 @@ interface ChatAreaProps {
 
 export function ChatArea({ channelId, channelName, isPrivate = false, isDM = false }: ChatAreaProps) {
   const { messages, loading, sendMessage } = useMessages(channelId)
-  const [newMessage, setNewMessage] = useState("")
   const { user } = useAuth()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -28,12 +26,8 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
     scrollToBottom()
   }, [messages])
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newMessage.trim()) return
-
-    await sendMessage(newMessage)
-    setNewMessage("")
+  const handleSendMessage = (content: string, attachments?: any[]) => {
+    sendMessage(content, attachments)
   }
 
   const formatTime = (dateString: string) => {
@@ -152,9 +146,29 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
                       </div>
                       
                       {/* Message text */}
-                      <div className="text-sm text-foreground leading-relaxed">
-                        {message.content}
-                      </div>
+                      <div 
+                        className="text-sm text-foreground leading-relaxed prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ 
+                          __html: message.content_type === 'rich' 
+                            ? message.content 
+                            : message.content.replace(/\n/g, '<br/>') 
+                        }}
+                      />
+                      
+                      {/* Attachments */}
+                      {message.attachments && message.attachments.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {message.attachments.map((attachment: any, idx: number) => (
+                            <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded text-xs">
+                              <Paperclip className="w-3 h-3" />
+                              <span className="flex-1 truncate">{attachment.name}</span>
+                              <span className="text-muted-foreground">
+                                {attachment.size ? `${Math.round(attachment.size / 1024)}KB` : ''}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     
                     {/* Actions on hover (hidden for now, Slack-style) */}
@@ -170,76 +184,12 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
         </div>
       </ScrollArea>
 
-      {/* Slack-style Message Input */}
+      {/* Message Input */}
       <div className="px-6 pb-6">
-        <form onSubmit={handleSendMessage}>
-          <div className="relative">
-            {/* Formatting toolbar */}
-            <div className="flex items-center space-x-1 p-2 border border-input rounded-t-lg bg-background">
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-7 w-7 p-0 hover:bg-muted"
-                title="Negrito"
-              >
-                <span className="text-sm font-bold">B</span>
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-7 w-7 p-0 hover:bg-muted"
-                title="Itálico"
-              >
-                <span className="text-sm italic">I</span>
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-7 w-7 p-0 hover:bg-muted"
-                title="Anexar arquivo"
-              >
-                <Paperclip className="h-4 w-4" />
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-7 w-7 p-0 hover:bg-muted"
-                title="Emoji"
-              >
-                <Smile className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            {/* Message input */}
-            <div className="relative">
-              <Textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder={`Mensagem ${isDM ? channelName : `#${channelName}`}`}
-                className="rounded-t-none rounded-b-lg border-t-0 bg-background pr-12 py-3 min-h-[44px] max-h-[120px] resize-none"
-                rows={1}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    handleSendMessage(e as any)
-                  }
-                }}
-              />
-              <Button 
-                type="submit" 
-                disabled={!newMessage.trim()}
-                size="sm"
-                className="absolute right-2 bottom-2 h-8 w-8 p-0 bg-primary hover:bg-primary/90"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </form>
+        <MessageRichEditor
+          onSendMessage={handleSendMessage}
+          placeholder={`Mensagem ${isDM ? channelName : `#${channelName}`}`}
+        />
       </div>
     </div>
   )
