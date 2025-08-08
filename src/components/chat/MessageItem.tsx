@@ -81,24 +81,33 @@ export function MessageItem({
     return (
       <div className="flex flex-wrap gap-2 mt-2">
         {message.attachments.map((attachment: any, index: number) => {
-          const isImage = attachment.type?.startsWith('image/')
-          const isVideo = attachment.type?.startsWith('video/')
+          const url: string = attachment.url || ''
+          const name: string = attachment.name || 'arquivo'
+          const path = url.split('?')[0].toLowerCase()
+          const ext = (path.split('.').pop() || '').toLowerCase()
+
+          const isImage = (attachment.type?.startsWith('image/') ?? false) ||
+            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext)
+          const isVideo = (attachment.type?.startsWith('video/') ?? false) ||
+            ['mp4', 'webm', 'mov', 'ogg', 'm4v'].includes(ext)
 
           if (isImage) {
             return (
               <button
                 key={index}
                 type="button"
-                className="group relative"
-                onClick={() => setPreview({ type: 'image', url: attachment.url, name: attachment.name })}
+                className="group relative cursor-zoom-in"
+                onClick={() => setPreview({ type: 'image', url, name })}
               >
                 <img
-                  src={attachment.url}
-                  alt={`Imagem: ${attachment.name || 'anexo'}`}
+                  src={url}
+                  alt={`Imagem: ${name}`}
                   className="h-32 w-auto rounded-md object-cover shadow-sm"
                   loading="lazy"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'
+                    const img = e.currentTarget as HTMLImageElement
+                    img.onerror = null
+                    img.src = '/placeholder.svg'
                   }}
                 />
               </button>
@@ -110,11 +119,11 @@ export function MessageItem({
               <button
                 key={index}
                 type="button"
-                className="group relative"
-                onClick={() => setPreview({ type: 'video', url: attachment.url, name: attachment.name })}
+                className="group relative cursor-zoom-in"
+                onClick={() => setPreview({ type: 'video', url, name })}
               >
                 <video
-                  src={attachment.url}
+                  src={url}
                   className="h-32 w-auto rounded-md shadow-sm"
                   muted
                   playsInline
@@ -127,13 +136,13 @@ export function MessageItem({
           return (
             <a
               key={index}
-              href={attachment.url}
+              href={url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline flex items-center gap-2"
               download
             >
-              📎 {attachment.name}
+              📎 {name}
             </a>
           )
         })}
@@ -234,7 +243,43 @@ export function MessageItem({
             </div>
           )}
         </div>
-      </div>
-    </>
+       </div>
+
+       <Dialog open={!!preview} onOpenChange={(open) => { if (!open) setPreview(null) }}>
+         <DialogContent className="max-w-4xl">
+           <div className="flex items-center justify-between mb-2">
+             <div className="text-sm text-muted-foreground truncate">{preview?.name || 'Arquivo'}</div>
+             {preview?.url && (
+               <Button asChild variant="secondary" size="sm">
+                 <a href={preview.url} download target="_blank" rel="noopener noreferrer">
+                   <Download className="h-4 w-4 mr-1" /> Baixar
+                 </a>
+               </Button>
+             )}
+           </div>
+           <div className="w-full max-h-[80vh]">
+             {preview?.type === 'image' ? (
+               <img
+                 src={preview.url}
+                 alt={preview?.name || 'Imagem'}
+                 className="w-full max-h-[80vh] object-contain rounded-md"
+                 onError={(e) => {
+                   const img = e.currentTarget as HTMLImageElement
+                   img.onerror = null
+                   img.src = '/placeholder.svg'
+                 }}
+               />
+             ) : preview?.type === 'video' ? (
+               <video
+                 src={preview.url}
+                 className="w-full max-h-[80vh] rounded-md"
+                 controls
+                 playsInline
+               />
+             ) : null}
+           </div>
+         </DialogContent>
+       </Dialog>
+     </>
   )
 }
