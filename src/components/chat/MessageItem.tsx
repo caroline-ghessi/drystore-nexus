@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { formatTime, formatDate, extractCleanText } from '@/lib/utils'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { supabase } from '@/integrations/supabase/client'
+import { ReplyPreview } from './ReplyPreview'
 
 interface MessageItemProps {
   message: {
@@ -195,90 +196,157 @@ export function MessageItem({
         </div>
       )}
       
-      <div
-        className="group hover:bg-muted/30 px-4 py-2 transition-colors relative"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {/* Reply thread line */}
-        {replyToMessage && (
-          <div className="ml-12 mb-2 pl-4 border-l-2 border-border/60">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-md px-2 py-1">
-              <Avatar className="w-4 h-4">
-                <AvatarImage src={replyToMessage.avatar_url || undefined} />
-                <AvatarFallback className="text-xs">
-                  {(replyToMessage.display_name || 'U').charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="font-medium text-foreground">{replyToMessage.display_name || 'Usuário'}</span>
-              <span className="truncate max-w-xs text-muted-foreground">
-                {(() => {
-                  const cleanText = extractCleanText(replyToMessage.content)
-                  return cleanText.length > 50 
-                    ? cleanText.slice(0, 50) + '...' 
-                    : cleanText
-                })()}
-              </span>
-            </div>
-          </div>
-        )}
-
-        <div className="flex gap-3">
-          <Avatar className="w-10 h-10">
-            <AvatarImage src={author.avatar_url || undefined} />
-            <AvatarFallback>
-              {displayName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-baseline gap-2 mb-1">
-              <span className="font-semibold text-foreground">
-                {displayName}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {formatTime(message.created_at)}
-              </span>
-              {message.edited && (
-                <Badge variant="secondary" className="text-xs">
-                  editado
-                </Badge>
-              )}
-              {isCurrentUser && (
-                <Badge variant="outline" className="text-xs">
-                  você
-                </Badge>
+      {isCurrentUser ? (
+        // Layout para mensagens próprias (direita)
+        <div 
+          className="group px-4 py-2 transition-colors"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className="flex justify-end">
+            <div className={`transition-opacity mr-2 flex items-start pt-1 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+              {onReply && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onReply({
+                    id: message.id,
+                    content: message.content,
+                    user_id: message.user_id,
+                    display_name: author.display_name,
+                    avatar_url: author.avatar_url,
+                    created_at: message.created_at
+                  })}
+                  className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                >
+                  <Reply className="h-4 w-4" />
+                </Button>
               )}
             </div>
             
-            <div className="text-foreground break-words">
-              {renderContent(message.content)}
-              {renderAttachments()}
+            <div className="max-w-[70%] min-w-0">
+              {replyToMessage && (
+                <div className="mb-2 mr-2">
+                  <div className="text-xs text-primary-foreground/70 mb-1 pl-2 border-l-2 border-primary-foreground/30">
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">{replyToMessage.display_name || 'Usuário'}</span>
+                    </div>
+                    <div className="text-primary-foreground/60 truncate max-w-xs">
+                      {(() => {
+                        const cleanText = extractCleanText(replyToMessage.content)
+                        return cleanText.length > 40 ? cleanText.slice(0, 40) + '...' : cleanText
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-2">
+                <div className="text-xs text-primary-foreground/70 mb-1 text-right">
+                  {formatTime(message.created_at)}
+                  {message.edited && (
+                    <span className="ml-2">editado</span>
+                  )}
+                </div>
+                
+                <div className="break-words">
+                  {renderContent(message.content)}
+                </div>
+                
+                {message.attachments && message.attachments.length > 0 && (
+                  <div className="mt-2">
+                    {renderAttachments()}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-
-          {/* Reply button */}
-          {isHovered && onReply && (
-            <div className="flex items-start pt-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onReply({
-                  id: message.id,
-                  content: message.content,
-                  user_id: message.user_id,
-                  display_name: author.display_name,
-                  avatar_url: author.avatar_url,
-                  created_at: message.created_at
-                })}
-                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-              >
-                <Reply className="h-4 w-4" />
-              </Button>
+        </div>
+      ) : (
+        // Layout para mensagens de outros (esquerda)
+        <div 
+          className="group hover:bg-muted/30 px-4 py-2 transition-colors"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {replyToMessage && (
+            <div className="ml-12 mb-2 pl-4 border-l-2 border-border/60">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-md px-2 py-1">
+                <Avatar className="w-4 h-4">
+                  <AvatarImage src={replyToMessage.avatar_url || undefined} />
+                  <AvatarFallback className="text-xs">
+                    {(replyToMessage.display_name || 'U').charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="font-medium text-foreground">{replyToMessage.display_name || 'Usuário'}</span>
+                <span className="truncate max-w-xs text-muted-foreground">
+                  {(() => {
+                    const cleanText = extractCleanText(replyToMessage.content)
+                    return cleanText.length > 50 ? cleanText.slice(0, 50) + '...' : cleanText
+                  })()}
+                </span>
+              </div>
             </div>
           )}
+
+          <div className="flex gap-3">
+            <Avatar className="w-10 h-10 flex-shrink-0">
+              <AvatarImage src={author.avatar_url || undefined} />
+              <AvatarFallback>
+                {displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-1 min-w-0 max-w-[70%]">
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="font-semibold text-foreground">
+                  {displayName}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {formatTime(message.created_at)}
+                </span>
+                {message.edited && (
+                  <Badge variant="secondary" className="text-xs">
+                    editado
+                  </Badge>
+                )}
+              </div>
+              
+              <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2">
+                <div className="text-foreground break-words">
+                  {renderContent(message.content)}
+                </div>
+                
+                {message.attachments && message.attachments.length > 0 && (
+                  <div className="mt-2">
+                    {renderAttachments()}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className={`transition-opacity flex items-start pt-1 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+              {onReply && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onReply({
+                    id: message.id,
+                    content: message.content,
+                    user_id: message.user_id,
+                    display_name: author.display_name,
+                    avatar_url: author.avatar_url,
+                    created_at: message.created_at
+                  })}
+                  className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                >
+                  <Reply className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
-       </div>
+      )}
 
        <Dialog open={!!preview} onOpenChange={(open) => { if (!open) setPreview(null) }}>
          <DialogContent className="max-w-4xl">
