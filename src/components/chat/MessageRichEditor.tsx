@@ -66,9 +66,9 @@ export function MessageRichEditor({
       Placeholder.configure({
         placeholder,
       }),
-      // Mention.configure({
-      //   suggestion: createMentionSuggestion(searchMembers),
-      // }),
+      Mention.configure({
+        suggestion: createMentionSuggestion(searchMembers),
+      }),
     ],
     content: '',
     editorProps: {
