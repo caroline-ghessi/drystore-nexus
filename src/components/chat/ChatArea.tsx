@@ -1,9 +1,10 @@
 import { useRef, useEffect } from "react"
-import { Hash, Lock, Loader2, Paperclip, UserPlus } from "lucide-react"
+import { Hash, Lock, Loader2, UserPlus } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserStatus } from "@/components/ui/user-status"
 import { Button } from "@/components/ui/button"
 import { MessageRichEditor } from "./MessageRichEditor"
+import { MessageItem } from "./MessageItem"
 import { useReplies } from "@/hooks/useReplies"
 import { useMessages } from "@/hooks/useMessages"
 import { useAuth } from "@/hooks/useAuth"
@@ -143,88 +144,22 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
             </div>
           ) : (
             messages.map((message, index) => {
-              const showDate = index === 0 || 
+              const showDateSeparator = index === 0 || 
                 formatDate(message.created_at) !== formatDate(messages[index - 1].created_at)
               
-              const isOwn = message.user_id === user?.id
-              const authorName = isOwn ? 'Você' : 'Usuário'
+              const isCurrentUser = message.user_id === user?.id
               
               return (
-                <div key={message.id}>
-                  {showDate && (
-                    <div className="text-center my-4">
-                      <span className="bg-muted px-3 py-1 rounded-full text-xs text-muted-foreground">
-                        {formatDate(message.created_at)}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* Slack-style linear message layout */}
-                  <div className="flex space-x-3 hover:bg-muted/30 py-2 px-3 -mx-3 rounded group">
-                    {/* Avatar always on the left */}
-                    <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-medium text-sm flex-shrink-0">
-                      {authorName.charAt(0).toUpperCase()}
-                    </div>
-                    
-                    {/* Message content */}
-                    <div className="flex-1 min-w-0">
-                      {/* Name and timestamp row */}
-                      <div className="flex items-baseline space-x-2 mb-1">
-                        <span className="text-sm font-semibold text-foreground">
-                          {authorName}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatTime(message.created_at)}
-                        </span>
-                        {message.edited && (
-                          <span className="text-xs text-muted-foreground">(editado)</span>
-                        )}
-                      </div>
-                      
-                      {/* Message text */}
-                      <div 
-                        className="text-sm text-foreground leading-relaxed prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ 
-                          __html: message.content_type === 'rich' 
-                            ? message.content 
-                            : message.content.replace(/\n/g, '<br/>') 
-                        }}
-                      />
-                      
-                      {/* Attachments */}
-                      {message.attachments && message.attachments.length > 0 && (
-                        <div className="mt-2 space-y-1">
-                          {message.attachments.map((attachment: any, idx: number) => (
-                            <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded text-xs">
-                              <Paperclip className="w-3 h-3" />
-                              <span className="flex-1 truncate">{attachment.name}</span>
-                              <span className="text-muted-foreground">
-                                {attachment.size ? `${Math.round(attachment.size / 1024)}KB` : ''}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    
-                     {/* Reply button on hover */}
-                     <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                       <button
-                         onClick={() => startReply({
-                           id: message.id,
-                           content: message.content,
-                           user_id: message.user_id,
-                           display_name: authorName,
-                           avatar_url: null,
-                           created_at: message.created_at
-                         })}
-                         className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-                       >
-                         ↩️
-                       </button>
-                     </div>
-                  </div>
-                </div>
+                <MessageItem
+                  key={message.id}
+                  message={message}
+                  author={message.author}
+                  replyToMessage={message.replyToMessage}
+                  currentUserId={user?.id}
+                  onReply={startReply}
+                  showDateSeparator={showDateSeparator}
+                  isCurrentUser={isCurrentUser}
+                />
               )
             })
           )}

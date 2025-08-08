@@ -17,8 +17,22 @@ export interface Message {
   mentions?: any[]
 }
 
+export interface MessageWithAuthor extends Message {
+  author: {
+    display_name: string | null
+    avatar_url: string | null
+  }
+  replyToMessage?: {
+    id: string
+    content: string
+    user_id: string
+    display_name: string | null
+    avatar_url: string | null
+  } | null
+}
+
 export function useMessages(channelId: string) {
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<MessageWithAuthor[]>([])
   const [loading, setLoading] = useState(true)
   const { user } = useAuth()
   const { toast } = useToast()
@@ -29,19 +43,63 @@ export function useMessages(channelId: string) {
 
     const fetchMessages = async () => {
       try {
-        const { data, error } = await supabase
+        const { data: messagesData, error } = await supabase
           .from('messages')
           .select('*')
           .eq('channel_id', channelId)
           .order('created_at', { ascending: true })
 
         if (error) throw error
-        setMessages((data || []).map(msg => ({
-          ...msg,
-          attachments: Array.isArray(msg.attachments) ? msg.attachments : [],
-          mentions: Array.isArray(msg.mentions) ? msg.mentions : [],
-          edited: Boolean(msg.edited)
-        }) as Message))
+        
+        const messagesWithAuthor = await Promise.all(
+          (messagesData || []).map(async (msg: any) => {
+            // Fetch author profile
+            const { data: authorData } = await supabase
+              .from('profiles')
+              .select('display_name, avatar_url')
+              .eq('user_id', msg.user_id)
+              .single()
+
+            const message: MessageWithAuthor = {
+              ...msg,
+              attachments: Array.isArray(msg.attachments) ? msg.attachments : [],
+              mentions: Array.isArray(msg.mentions) ? msg.mentions : [],
+              edited: Boolean(msg.edited),
+              author: authorData || { display_name: null, avatar_url: null },
+              replyToMessage: null
+            }
+
+            // Fetch reply-to message if it exists
+            if (msg.reply_to_id) {
+              const { data: replyMessage } = await supabase
+                .from('messages')
+                .select('id, content, user_id')
+                .eq('id', msg.reply_to_id)
+                .single()
+
+              if (replyMessage) {
+                // Fetch reply author profile
+                const { data: replyAuthor } = await supabase
+                  .from('profiles')
+                  .select('display_name, avatar_url')
+                  .eq('user_id', replyMessage.user_id)
+                  .single()
+
+                message.replyToMessage = {
+                  id: replyMessage.id,
+                  content: replyMessage.content,
+                  user_id: replyMessage.user_id,
+                  display_name: replyAuthor?.display_name || null,
+                  avatar_url: replyAuthor?.avatar_url || null
+                }
+              }
+            }
+
+            return message
+          })
+        )
+        
+        setMessages(messagesWithAuthor)
       } catch (error) {
         console.error('Error loading messages:', error)
         toast({
@@ -72,12 +130,55 @@ export function useMessages(channelId: string) {
           filter: `channel_id=eq.${channelId}`
         },
         async (payload) => {
-          const newMessage = {
-            ...payload.new,
+          // Fetch author profile for new message
+          const { data: authorData } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('user_id', payload.new.user_id)
+            .single()
+
+          const newMessage: MessageWithAuthor = {
+            id: payload.new.id,
+            content: payload.new.content,
+            user_id: payload.new.user_id,
+            channel_id: payload.new.channel_id,
+            created_at: payload.new.created_at,
+            updated_at: payload.new.updated_at,
+            edited: Boolean(payload.new.edited),
             attachments: Array.isArray(payload.new.attachments) ? payload.new.attachments : [],
+            content_type: payload.new.content_type,
+            reply_to_id: payload.new.reply_to_id,
             mentions: Array.isArray(payload.new.mentions) ? payload.new.mentions : [],
-            edited: Boolean(payload.new.edited)
-          } as Message
+            author: authorData || { display_name: null, avatar_url: null },
+            replyToMessage: null
+          }
+
+          // Fetch reply-to message if it exists
+          if (payload.new.reply_to_id) {
+            const { data: replyMessage } = await supabase
+              .from('messages')
+              .select('id, content, user_id')
+              .eq('id', payload.new.reply_to_id)
+              .single()
+
+            if (replyMessage) {
+              // Fetch reply author profile
+              const { data: replyAuthor } = await supabase
+                .from('profiles')
+                .select('display_name, avatar_url')
+                .eq('user_id', replyMessage.user_id)
+                .single()
+
+              newMessage.replyToMessage = {
+                id: replyMessage.id,
+                content: replyMessage.content,
+                user_id: replyMessage.user_id,
+                display_name: replyAuthor?.display_name || null,
+                avatar_url: replyAuthor?.avatar_url || null
+              }
+            }
+          }
+
           setMessages(prev => [...prev, newMessage])
         }
       )
@@ -90,15 +191,15 @@ export function useMessages(channelId: string) {
           filter: `channel_id=eq.${channelId}`
         },
         async (payload) => {
-          const updatedMessage = {
-            ...payload.new,
-            attachments: Array.isArray(payload.new.attachments) ? payload.new.attachments : [],
-            mentions: Array.isArray(payload.new.mentions) ? payload.new.mentions : [],
-            edited: Boolean(payload.new.edited)
-          } as Message
           setMessages(prev => 
             prev.map(msg => 
-              msg.id === payload.new.id ? updatedMessage : msg
+              msg.id === payload.new.id ? {
+                ...msg,
+                ...payload.new,
+                attachments: Array.isArray(payload.new.attachments) ? payload.new.attachments : [],
+                mentions: Array.isArray(payload.new.mentions) ? payload.new.mentions : [],
+                edited: Boolean(payload.new.edited)
+              } : msg
             )
           )
         }
