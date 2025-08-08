@@ -203,6 +203,16 @@ export default function Documents() {
           ? (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent, null, 2))
           : ''
       )
+      // Abrir editor automaticamente se conteúdo estiver vazio
+      const rc: any = rawContent as any;
+      const isEmpty =
+        rawContent == null ||
+        (typeof rawContent !== 'string' && (!rc?.content || rc.content.length === 0)) ||
+        (typeof rawContent === 'string' && rawContent.trim() === '');
+
+      if ((isAdmin || data.created_by === user?.id) && isEmpty) {
+        setEditing(true)
+      }
       console.log('[Documents] Loaded document:', data)
     } catch (error: any) {
       console.error('[Documents] Error fetching document:', error)
@@ -430,17 +440,19 @@ export default function Documents() {
           <CardContent>
             {!editing ? (
               <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap text-sm leading-relaxed text-card-foreground">
-                  {content}
-                </pre>
+                <RichTextEditor
+                  content={content && content.trim() ? content : JSON.stringify({ type: 'doc', content: [] })}
+                  onChange={() => {}}
+                  editable={false}
+                />
               </div>
             ) : (
               <div className="prose prose-sm max-w-none">
-                {/* Simples textarea para edição do JSON/bruto; futura integração com editor rico */}
-                <textarea
-                  className="w-full min-h-[300px] rounded-md border p-3 text-sm"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                <RichTextEditor
+                  content={content && content.trim() ? content : JSON.stringify({ type: 'doc', content: [] })}
+                  onChange={(val) => setContent(val)}
+                  editable
+                  placeholder="Escreva o conteúdo do documento..."
                 />
               </div>
             )}
