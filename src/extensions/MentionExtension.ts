@@ -37,6 +37,9 @@ export const Mention = Node.create<MentionOptions>({
     return {
       HTMLAttributes: {},
       suggestion: {
+        char: '@',
+        startOfLine: false,
+        allowSpaces: false,
         items: () => [],
         render: () => ({
           onStart: () => {},
@@ -141,11 +144,11 @@ export const Mention = Node.create<MentionOptions>({
 
 export function createMentionSuggestion(searchMembers: (query: string) => MentionUser[]) {
   return {
-    char: '@',
-    startOfLine: false,
-    allowSpaces: false,
     items: ({ query }: { query: string; editor: any }) => {
-      return searchMembers(query).slice(0, 10)
+      console.log('Buscando membros com query:', query)
+      const results = searchMembers(query).slice(0, 10)
+      console.log('Resultados encontrados:', results)
+      return results
     },
 
     render: () => {

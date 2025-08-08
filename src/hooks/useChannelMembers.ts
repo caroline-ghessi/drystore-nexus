@@ -35,12 +35,20 @@ export function useChannelMembers(channelId: string) {
   }, [channelId])
 
   const searchMembers = (query: string) => {
+    console.log('searchMembers chamado com query:', query, 'membros disponíveis:', members.length)
+    
     if (!query) return members
     
-    return members.filter(member => 
-      member.display_name?.toLowerCase().includes(query.toLowerCase()) ||
-      member.user_id.toLowerCase().includes(query.toLowerCase())
-    )
+    const filteredMembers = members.filter(member => {
+      const name = member.display_name?.toLowerCase() || ''
+      const userId = member.user_id.toLowerCase()
+      const queryLower = query.toLowerCase()
+      
+      return name.includes(queryLower) || userId.includes(queryLower)
+    })
+    
+    console.log('Membros filtrados:', filteredMembers)
+    return filteredMembers
   }
 
   return {
