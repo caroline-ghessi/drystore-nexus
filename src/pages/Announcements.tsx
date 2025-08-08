@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Megaphone, Pin, Calendar, AlertTriangle, Info, CheckCircle2, Plus, Filter, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminAccess } from '@/hooks/useAdminAccess';
+import { supabase } from '@/integrations/supabase/client';
+import CreateAnnouncementModal from '@/components/announcements/CreateAnnouncementModal';
+import { extractTextFromTipTapJSON } from '@/utils/extractTextFromTipTap';
 
 interface Announcement {
   id: string;
@@ -65,15 +69,73 @@ const mockAnnouncements: Announcement[] = [
 ];
 
 export default function Announcements() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>(mockAnnouncements);
-  const [filteredAnnouncements, setFilteredAnnouncements] = useState<Announcement[]>(mockAnnouncements);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
   const { user } = useAuth();
+  const { isAdmin } = useAdminAccess();
+
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [filteredAnnouncements, setFilteredAnnouncements] = useState<Announcement[]>([]);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const fetchAnnouncements = useCallback(async () => {
+    console.log('[Announcements] Fetching from Supabase...');
+    const { data, error } = await supabase
+      .from('announcements')
+      .select('*')
+      .order('is_pinned', { ascending: false })
+      .order('publish_date', { ascending: false });
+
+    if (error) {
+      console.error('[Announcements] Error fetching:', error);
+      return;
+    }
+
+    // Fetch profiles for authors
+    const authorIds = Array.from(new Set((data || []).map((d: any) => d.author_user_id).filter(Boolean)));
+    let profilesByUserId: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
+    if (authorIds.length > 0) {
+      const { data: profs, error: profErr } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_url')
+        .in('user_id', authorIds as any);
+
+      if (!profErr && profs) {
+        profilesByUserId = profs.reduce((acc: any, p: any) => {
+          acc[p.user_id] = { display_name: p.display_name, avatar_url: p.avatar_url };
+          return acc;
+        }, {});
+      }
+    }
+
+    const mapped: Announcement[] = (data || []).map((row: any) => {
+      const author = profilesByUserId[row.author_user_id] || { display_name: null, avatar_url: null };
+      const preview = extractTextFromTipTapJSON(row.content).slice(0, 220);
+      return {
+        id: row.id,
+        title: row.title,
+        content: preview, // mantém compatibilidade com filtros existentes (string)
+        priority: row.priority,
+        category: row.category || 'Geral',
+        author: { name: author.display_name || 'Anônimo', avatar: author.avatar_url || '' },
+        publishDate: row.publish_date,
+        isPinned: row.is_pinned,
+        readBy: [], // ainda não implementado
+        reactions: { likes: 0, comments: 0 }, // placeholder
+      } as Announcement;
+    });
+
+    setAnnouncements(mapped);
+  }, []);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, [fetchAnnouncements]);
 
   useEffect(() => {
     filterAnnouncements();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [announcements, searchQuery, selectedCategory, selectedPriority]);
 
   const filterAnnouncements = () => {
@@ -95,7 +157,6 @@ export default function Announcements() {
       filtered = filtered.filter(announcement => announcement.priority === selectedPriority);
     }
 
-    // Sort by pinned first, then by date
     filtered.sort((a, b) => {
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
@@ -145,10 +206,12 @@ export default function Announcements() {
               </p>
             </div>
           </div>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Anúncio
-          </Button>
+          {isAdmin && (
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Anúncio
+            </Button>
+          )}
         </div>
       </div>
 
@@ -205,15 +268,13 @@ export default function Announcements() {
           {filteredAnnouncements.map((announcement) => {
             const priorityConfig = getPriorityConfig(announcement.priority);
             const PriorityIcon = priorityConfig.icon;
-            const isRead = announcement.readBy.includes(user?.id || '');
+            const isRead = true; // placeholder (ainda não implementado)
 
             return (
               <Card 
                 key={announcement.id}
                 className={`transition-all hover:shadow-md ${
                   announcement.isPinned ? 'border-primary/50 bg-primary/5' : ''
-                } ${
-                  !isRead ? 'border-l-4 border-l-primary' : ''
                 }`}
               >
                 <CardHeader>
@@ -291,6 +352,12 @@ export default function Announcements() {
           )}
         </div>
       </div>
+
+      <CreateAnnouncementModal
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onCreated={fetchAnnouncements}
+      />
     </div>
   );
 }

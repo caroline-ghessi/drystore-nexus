@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          author_user_id: string
+          category: string | null
+          content: Json
+          created_at: string
+          id: string
+          is_pinned: boolean
+          priority: string
+          publish_date: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_user_id?: string
+          category?: string | null
+          content?: Json
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          priority?: string
+          publish_date?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_user_id?: string
+          category?: string | null
+          content?: Json
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          priority?: string
+          publish_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       channel_members: {
         Row: {
           channel_id: string
