@@ -22,6 +22,7 @@ import KnowledgeBase from "./pages/KnowledgeBase";
 import Announcements from "./pages/Announcements";
 import People from "./pages/People";
 import Activity from "./pages/Activity";
+import Mentions from "./pages/Mentions";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ function App() {
               <Route path="/knowledge-base" element={<ProtectedRoute><Layout><KnowledgeBase /></Layout></ProtectedRoute>} />
               <Route path="/announcements" element={<ProtectedRoute><Layout><Announcements /></Layout></ProtectedRoute>} />
               <Route path="/people" element={<ProtectedRoute><Layout><People /></Layout></ProtectedRoute>} />
+              <Route path="/mentions" element={<ProtectedRoute><Layout><Mentions /></Layout></ProtectedRoute>} />
               <Route path="/activity" element={<ProtectedRoute><Layout><Activity /></Layout></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><AdminRoute><Layout><Admin /></Layout></AdminRoute></ProtectedRoute>} />

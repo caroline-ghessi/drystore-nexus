@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { MentionsList } from '@/components/mentions/MentionsList';
 import { 
   TrendingUp, 
   Users, 
@@ -238,7 +239,7 @@ export function CorporateDashboard() {
           </div>
         </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Comunicados Recentes */}
         <Card>
           <CardHeader>
@@ -356,6 +357,9 @@ export function CorporateDashboard() {
             ))}
           </CardContent>
         </Card>
+
+        {/* Mentions Section */}
+        <MentionsList limit={5} compact={true} />
       </div>
       </div>
     </div>
