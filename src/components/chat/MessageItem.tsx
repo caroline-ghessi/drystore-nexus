@@ -48,9 +48,10 @@ export function MessageItem({
   const renderContent = (content: string) => {
     if (!content) return null
     
+    let processedContent = content
+    
     // Process mentions
     if (message.mentions && message.mentions.length > 0) {
-      let processedContent = content
       message.mentions.forEach((mention: any) => {
         if (typeof mention === 'object' && mention.display_name) {
           const mentionPattern = new RegExp(`@${mention.display_name}`, 'g')
@@ -60,10 +61,10 @@ export function MessageItem({
           )
         }
       })
-      return <div dangerouslySetInnerHTML={{ __html: processedContent }} />
     }
     
-    return <div>{content}</div>
+    // Always render HTML content using dangerouslySetInnerHTML
+    return <div dangerouslySetInnerHTML={{ __html: processedContent }} />
   }
 
   const renderAttachments = () => {
