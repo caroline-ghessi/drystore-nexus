@@ -3,6 +3,10 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
+import { Mention, createMentionSuggestion } from '@/extensions/MentionExtension'
+import { useChannelMembers } from '@/hooks/useChannelMembers'
+import { useReplies } from '@/hooks/useReplies'
+import { ReplyPreview } from './ReplyPreview'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -13,9 +17,10 @@ import EmojiPicker from 'emoji-picker-react'
 import { cn } from '@/lib/utils'
 
 interface MessageRichEditorProps {
-  onSendMessage: (content: string, attachments?: any[]) => void
+  onSendMessage: (content: string, attachments?: any[], replyToId?: string, mentions?: any[]) => void
   placeholder?: string
   className?: string
+  channelId: string
 }
 
 interface Attachment {
@@ -29,13 +34,17 @@ interface Attachment {
 export function MessageRichEditor({ 
   onSendMessage, 
   placeholder = "Digite sua mensagem...",
-  className 
+  className,
+  channelId
 }: MessageRichEditorProps) {
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [uploading, setUploading] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+  
+  const { members, searchMembers } = useChannelMembers(channelId)
+  const { replyTo, cancelReply, clearReply } = useReplies()
 
   const editor = useEditor({
     extensions: [
@@ -57,6 +66,9 @@ export function MessageRichEditor({
       Placeholder.configure({
         placeholder,
       }),
+      // Mention.configure({
+      //   suggestion: createMentionSuggestion(searchMembers),
+      // }),
     ],
     content: '',
     editorProps: {
@@ -157,12 +169,27 @@ export function MessageRichEditor({
     // Don't send empty messages unless there are attachments
     if (!textContent && attachments.length === 0) return
 
-    // Send message with content and attachments
-    onSendMessage(content, attachments)
+    // Extract mentions from editor content
+    const mentions: any[] = []
+    editor.state.doc.descendants((node) => {
+      if (node.type.name === 'mention') {
+        const member = members.find(m => m.user_id === node.attrs.id)
+        if (member) {
+          mentions.push({
+            user_id: member.user_id,
+            display_name: member.display_name
+          })
+        }
+      }
+    })
+
+    // Send message with content, attachments, reply and mentions
+    onSendMessage(content, attachments, replyTo?.id, mentions)
 
     // Clear editor and attachments
     editor.commands.clearContent()
     setAttachments([])
+    clearReply()
   }
 
   const formatFileSize = (bytes: number) => {
@@ -191,6 +218,11 @@ export function MessageRichEditor({
 
   return (
     <div className={cn("border rounded-lg bg-background", className)}>
+      {/* Reply Preview */}
+      {replyTo && (
+        <ReplyPreview message={replyTo} onCancel={cancelReply} />
+      )}
+      
       {/* Attachments Preview */}
       {attachments.length > 0 && (
         <div className="border-b p-2 space-y-1">

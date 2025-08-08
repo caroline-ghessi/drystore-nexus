@@ -3,6 +3,7 @@ import { Hash, Lock, Loader2, Paperclip } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserStatus } from "@/components/ui/user-status"
 import { MessageRichEditor } from "./MessageRichEditor"
+import { useReplies } from "@/hooks/useReplies"
 import { useMessages } from "@/hooks/useMessages"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -16,6 +17,7 @@ interface ChatAreaProps {
 export function ChatArea({ channelId, channelName, isPrivate = false, isDM = false }: ChatAreaProps) {
   const { messages, loading, sendMessage } = useMessages(channelId)
   const { user } = useAuth()
+  const { startReply } = useReplies()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -26,8 +28,8 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
     scrollToBottom()
   }, [messages])
 
-  const handleSendMessage = (content: string, attachments?: any[]) => {
-    sendMessage(content, attachments)
+  const handleSendMessage = (content: string, attachments?: any[], replyToId?: string, mentions?: any[]) => {
+    sendMessage(content, attachments, replyToId, mentions)
   }
 
   const formatTime = (dateString: string) => {
@@ -171,10 +173,22 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
                       )}
                     </div>
                     
-                    {/* Actions on hover (hidden for now, Slack-style) */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      {/* Espaço para futuras ações como reações, responder, etc. */}
-                    </div>
+                     {/* Reply button on hover */}
+                     <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                       <button
+                         onClick={() => startReply({
+                           id: message.id,
+                           content: message.content,
+                           user_id: message.user_id,
+                           display_name: authorName,
+                           avatar_url: null,
+                           created_at: message.created_at
+                         })}
+                         className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                       >
+                         ↩️
+                       </button>
+                     </div>
                   </div>
                 </div>
               )
@@ -189,6 +203,7 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
         <MessageRichEditor
           onSendMessage={handleSendMessage}
           placeholder={`Mensagem ${isDM ? channelName : `#${channelName}`}`}
+          channelId={channelId}
         />
       </div>
     </div>

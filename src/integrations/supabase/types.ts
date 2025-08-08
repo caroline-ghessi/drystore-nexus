@@ -228,6 +228,8 @@ export type Database = {
           created_at: string
           edited: boolean | null
           id: string
+          mentions: Json | null
+          reply_to_id: string | null
           updated_at: string
           user_id: string
         }
@@ -239,6 +241,8 @@ export type Database = {
           created_at?: string
           edited?: boolean | null
           id?: string
+          mentions?: Json | null
+          reply_to_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -250,6 +254,8 @@ export type Database = {
           created_at?: string
           edited?: boolean | null
           id?: string
+          mentions?: Json | null
+          reply_to_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -259,6 +265,13 @@ export type Database = {
             columns: ["channel_id"]
             isOneToOne: false
             referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
@@ -342,6 +355,14 @@ export type Database = {
       can_access_document: {
         Args: { document_id: string }
         Returns: boolean
+      }
+      get_channel_members: {
+        Args: { channel_id: string }
+        Returns: {
+          user_id: string
+          display_name: string
+          avatar_url: string
+        }[]
       }
       get_document_id_from_path: {
         Args: { path: string }

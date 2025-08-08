@@ -13,6 +13,8 @@ export interface Message {
   edited: boolean
   attachments?: any[]
   content_type?: string
+  reply_to_id?: string | null
+  mentions?: any[]
 }
 
 export function useMessages(channelId: string) {
@@ -36,8 +38,10 @@ export function useMessages(channelId: string) {
         if (error) throw error
         setMessages((data || []).map(msg => ({
           ...msg,
-          attachments: Array.isArray(msg.attachments) ? msg.attachments : []
-        })))
+          attachments: Array.isArray(msg.attachments) ? msg.attachments : [],
+          mentions: Array.isArray(msg.mentions) ? msg.mentions : [],
+          edited: Boolean(msg.edited)
+        }) as Message))
       } catch (error) {
         console.error('Error loading messages:', error)
         toast({
@@ -68,7 +72,13 @@ export function useMessages(channelId: string) {
           filter: `channel_id=eq.${channelId}`
         },
         async (payload) => {
-          setMessages(prev => [...prev, payload.new as Message])
+          const newMessage = {
+            ...payload.new,
+            attachments: Array.isArray(payload.new.attachments) ? payload.new.attachments : [],
+            mentions: Array.isArray(payload.new.mentions) ? payload.new.mentions : [],
+            edited: Boolean(payload.new.edited)
+          } as Message
+          setMessages(prev => [...prev, newMessage])
         }
       )
       .on(
@@ -80,9 +90,15 @@ export function useMessages(channelId: string) {
           filter: `channel_id=eq.${channelId}`
         },
         async (payload) => {
+          const updatedMessage = {
+            ...payload.new,
+            attachments: Array.isArray(payload.new.attachments) ? payload.new.attachments : [],
+            mentions: Array.isArray(payload.new.mentions) ? payload.new.mentions : [],
+            edited: Boolean(payload.new.edited)
+          } as Message
           setMessages(prev => 
             prev.map(msg => 
-              msg.id === payload.new.id ? payload.new as Message : msg
+              msg.id === payload.new.id ? updatedMessage : msg
             )
           )
         }
@@ -94,7 +110,7 @@ export function useMessages(channelId: string) {
     }
   }, [channelId])
 
-  const sendMessage = async (content: string, attachments?: any[]) => {
+  const sendMessage = async (content: string, attachments?: any[], replyToId?: string, mentions?: any[]) => {
     if (!user || (!content.trim() && (!attachments || attachments.length === 0))) return
 
     try {
@@ -103,7 +119,9 @@ export function useMessages(channelId: string) {
         content: content.trim() || '',
         user_id: user.id,
         channel_id: channelId,
-        content_type: content.includes('<') ? 'rich' : 'text'
+        content_type: content.includes('<') ? 'rich' : 'text',
+        reply_to_id: replyToId || null,
+        mentions: mentions || []
       }
 
       if (attachments && attachments.length > 0) {
