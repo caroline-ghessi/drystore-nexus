@@ -31,6 +31,26 @@ export interface MessageWithAuthor extends Message {
   } | null
 }
 
+export function addCacheBust(url: string, version?: string | number) {
+  if (!url) return url
+  const v = typeof version !== 'undefined' ? new Date(version).getTime() : Date.now()
+  return url.includes('?') ? `${url}&v=${v}` : `${url}?v=${v}`
+}
+
+export function buildPublicUrl(path: string, version?: string | number) {
+  const { data } = supabase.storage.from('message_attachments').getPublicUrl(path)
+  return addCacheBust(data.publicUrl, version)
+}
+
+export function normalizeAttachments(messageId: string, atts: any[] | null | undefined, updatedAt?: string) {
+  if (!Array.isArray(atts)) return []
+  return atts.map((att: any) => {
+    const path = `${messageId}/${att.id}`
+    const url = att.url ? addCacheBust(att.url, updatedAt) : buildPublicUrl(path, updatedAt)
+    return { ...att, url, path }
+  })
+}
+
 export function useMessages(channelId: string) {
   const [messages, setMessages] = useState<MessageWithAuthor[]>([])
   const [loading, setLoading] = useState(true)
@@ -95,13 +115,8 @@ export function useMessages(channelId: string) {
               }
             }
 
-            // Normaliza URLs públicas dos anexos (caso antigas ainda apontem para temp)
             if (message.attachments && message.attachments.length > 0) {
-              message.attachments = message.attachments.map((att: any) => {
-                const path = `${msg.id}/${att.id}`
-                const { data } = supabase.storage.from('message_attachments').getPublicUrl(path)
-                return { ...att, url: data.publicUrl, path }
-              })
+              message.attachments = normalizeAttachments(msg.id, message.attachments, msg.updated_at)
             }
 
             return message
@@ -162,13 +177,8 @@ export function useMessages(channelId: string) {
             replyToMessage: null
           }
 
-          // Normaliza URLs públicas dos anexos imediatamente
           if (newMessage.attachments && newMessage.attachments.length > 0) {
-            newMessage.attachments = newMessage.attachments.map((att: any) => {
-              const path = `${payload.new.id}/${att.id}`
-              const { data } = supabase.storage.from('message_attachments').getPublicUrl(path)
-              return { ...att, url: data.publicUrl, path }
-            })
+            newMessage.attachments = normalizeAttachments(payload.new.id, newMessage.attachments, payload.new.updated_at)
           }
 
           // Fetch reply-to message if it exists
@@ -214,11 +224,9 @@ export function useMessages(channelId: string) {
               msg.id === payload.new.id ? {
                 ...msg,
                 ...payload.new,
-                attachments: (Array.isArray(payload.new.attachments) ? payload.new.attachments.map((att: any) => {
-                  const path = `${payload.new.id}/${att.id}`
-                  const { data } = supabase.storage.from('message_attachments').getPublicUrl(path)
-                  return { ...att, url: data.publicUrl, path }
-                }) : []),
+                attachments: (Array.isArray(payload.new.attachments)
+                  ? normalizeAttachments(payload.new.id, payload.new.attachments, payload.new.updated_at)
+                  : []),
                 mentions: Array.isArray(payload.new.mentions) ? payload.new.mentions : [],
                 edited: Boolean(payload.new.edited)
               } : msg
@@ -273,23 +281,27 @@ export function useMessages(channelId: string) {
           const oldPath = `temp/${attachment.id}`
           const newPath = `${newMessage.id}/${attachment.id}`
           
-          // Move file to message-specific folder
-          await supabase.storage
+          const { data: moveData, error: moveError } = await supabase.storage
             .from('message_attachments')
             .move(oldPath, newPath)
 
-          // Gerar URL pública e compor metadados atualizados
-          const { data } = supabase.storage
-            .from('message_attachments')
-            .getPublicUrl(newPath)
-          updatedAttachments.push({ ...attachment, url: data.publicUrl, path: newPath })
+          if (moveError) {
+            // Mantém URL temporária para evitar quebra de visualização
+            updatedAttachments.push({ ...attachment, url: attachment.url, path: oldPath })
+          } else {
+            const { data } = supabase.storage
+              .from('message_attachments')
+              .getPublicUrl(newPath)
+            updatedAttachments.push({ ...attachment, url: data.publicUrl, path: newPath })
+          }
         }
 
-        // Atualiza o registro da mensagem com as URLs finais
-        await supabase
-          .from('messages')
-          .update({ attachments: updatedAttachments })
-          .eq('id', newMessage.id)
+        if (updatedAttachments.length > 0) {
+          await supabase
+            .from('messages')
+            .update({ attachments: updatedAttachments })
+            .eq('id', newMessage.id)
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error)
