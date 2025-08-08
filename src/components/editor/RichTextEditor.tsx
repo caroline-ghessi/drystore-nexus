@@ -1,4 +1,6 @@
-import { useEditor, EditorContent, BubbleMenu, FloatingMenu } from '@tiptap/react';
+import React from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import * as TiptapReact from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
@@ -9,11 +11,11 @@ import TaskItem from '@tiptap/extension-task-item';
 import Placeholder from '@tiptap/extension-placeholder';
 import TextAlign from '@tiptap/extension-text-align';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import Table from '@tiptap/extension-table';
+import { Table } from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
-import { lowlight } from 'lowlight';
+import { createLowlight, common } from 'lowlight';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -39,6 +41,10 @@ import {
   Link as LinkIcon,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+
+const lowlight = createLowlight(common);
+const BubbleMenu = (TiptapReact as any).BubbleMenu || (({ children }: { children: React.ReactNode }) => <>{children}</>);
+const FloatingMenu = (TiptapReact as any).FloatingMenu || (({ children }: { children: React.ReactNode }) => <>{children}</>);
 
 interface RichTextEditorProps {
   content: any;
@@ -331,5 +337,6 @@ export function RichTextEditor({ content, onChange, placeholder = "Digite aqui..
         </div>
       </FloatingMenu>
       <EditorContent editor={editor} />
+    </div>
   );
 }
