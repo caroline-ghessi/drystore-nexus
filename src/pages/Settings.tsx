@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2, User, Bell, Palette, LogOut } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { AvatarUpload } from '@/components/ui/avatar-upload';
 
 export default function Settings() {
   const { user, signOut } = useAuth();
@@ -122,13 +123,25 @@ export default function Settings() {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="avatarUrl">URL do Avatar</Label>
+            <Label>Foto de Perfil</Label>
+            <AvatarUpload
+              currentAvatarUrl={profile.avatar_url || ''}
+              displayName={profile.display_name || ''}
+              onAvatarUpdate={(url) => setProfile({ ...profile, avatar_url: url })}
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="avatarUrl">URL do Avatar (opcional)</Label>
             <Input
               id="avatarUrl"
               value={profile.avatar_url || ''}
               onChange={(e) => setProfile({ ...profile, avatar_url: e.target.value })}
               placeholder="https://exemplo.com/avatar.jpg"
             />
+            <p className="text-xs text-muted-foreground">
+              Você pode usar uma URL externa ou fazer upload de uma imagem acima.
+            </p>
           </div>
           <Button onClick={handleSaveProfile} disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
