@@ -158,7 +158,7 @@ export function UserManagement() {
   );
 
   const startEditing = (user: User) => {
-    setEditingUser(user.id);
+    setEditingUser(user.user_id);
     setEditForm({
       display_name: user.display_name || '',
       job_position_id: user.job_position_id || '',
@@ -212,7 +212,7 @@ export function UserManagement() {
             </Avatar>
 
             <div className="flex-1 space-y-1">
-              {editingUser === user.id ? (
+              {editingUser === user.user_id ? (
                 <div className="space-y-2">
                   <Input
                     value={editForm.display_name}
@@ -250,7 +250,7 @@ export function UserManagement() {
                 {isUserAdmin(user) ? 'Admin' : 'Usuário'}
               </Badge>
 
-              {editingUser === user.id ? (
+              {editingUser === user.user_id ? (
                 <div className="flex gap-2">
                   <Button size="sm" onClick={saveChanges} disabled={updateUserMutation.isPending}>
                     <Save className="h-4 w-4" />
