@@ -263,7 +263,7 @@ export function MessageRichEditor({
   if (!editor) return null
 
   return (
-    <div className={cn("border rounded-lg bg-background", className)}>
+    <div className={cn("", className)}>
       {/* Reply Preview */}
       {replyTo && (
         <ReplyPreview message={replyTo} onCancel={cancelReply} />
@@ -271,9 +271,9 @@ export function MessageRichEditor({
       
       {/* Attachments Preview */}
       {attachments.length > 0 && (
-        <div className="border-b p-2 space-y-1">
+        <div className="mb-2 space-y-1">
           {attachments.map((attachment) => (
-            <div key={attachment.id} className="flex items-center gap-2 text-xs bg-muted p-2 rounded">
+            <div key={attachment.id} className="flex items-center gap-2 text-xs bg-white rounded-lg p-2 border">
               <Paperclip className="w-3 h-3" />
               <span className="flex-1 truncate">{attachment.name}</span>
               <span className="text-muted-foreground">{formatFileSize(attachment.size)}</span>
@@ -290,71 +290,67 @@ export function MessageRichEditor({
         </div>
       )}
 
-      {/* Editor */}
-      <div onKeyDown={handleKeyDown}>
-        <EditorContent editor={editor} />
-      </div>
+      {/* WhatsApp-style Input */}
+      <div className="flex items-end gap-2">
+        {/* Emoji Button */}
+        <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2 text-gray-600 hover:text-gray-800 shrink-0"
+            >
+              <Smile className="w-6 h-6" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" side="top">
+            <EmojiPicker onEmojiClick={addEmoji} width={300} height={400} />
+          </PopoverContent>
+        </Popover>
+        
+        {/* Attachment Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="p-2 text-gray-600 hover:text-gray-800 shrink-0"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+        >
+          <Paperclip className="w-6 h-6" />
+        </Button>
 
-      {/* Toolbar */}
-      <div className="border-t p-2 flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          {/* Text Formatting */}
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 w-7 p-0"
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            data-active={editor.isActive('bold')}
+        {/* Text Input Area */}
+        <div className="flex-1 min-w-0">
+          <div 
+            className="bg-white rounded-full border border-gray-300 focus-within:border-gray-400 px-4 py-2 min-h-[40px] max-h-[120px] overflow-y-auto"
+            onKeyDown={handleKeyDown}
           >
-            <Bold className="w-3 h-3" />
-          </Button>
-          
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 w-7 p-0"
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            data-active={editor.isActive('italic')}
-          >
-            <Italic className="w-3 h-3" />
-          </Button>
-
-          {/* File Attachment */}
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 w-7 p-0"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-          >
-            <Paperclip className="w-3 h-3" />
-          </Button>
-
-          {/* Emoji Picker */}
-          <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
-            <PopoverTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 w-7 p-0"
-              >
-                <Smile className="w-3 h-3" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" side="top">
-              <EmojiPicker onEmojiClick={addEmoji} width={300} height={400} />
-            </PopoverContent>
-          </Popover>
+            <EditorContent 
+              editor={editor} 
+              className="prose prose-sm max-w-none [&_*]:my-0 [&_p]:leading-6 text-[15px] text-gray-900 placeholder-gray-500 focus:outline-none"
+            />
+          </div>
         </div>
 
-        {/* Send Button */}
-        <Button
-          size="sm"
-          onClick={handleSend}
-          disabled={!editor.getText().trim() && attachments.length === 0}
-        >
-          <Send className="w-3 h-3" />
-        </Button>
+        {/* Send Button or Voice Button */}
+        {(editor?.getText().trim() || attachments.length > 0) ? (
+          <Button
+            size="sm"
+            onClick={handleSend}
+            className="p-2 bg-primary text-white rounded-full hover:bg-primary-hover shrink-0"
+            disabled={!editor?.getText().trim() && attachments.length === 0}
+          >
+            <Send className="w-5 h-5" />
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-2 text-gray-600 hover:text-gray-800 shrink-0"
+          >
+            🎤
+          </Button>
+        )}
       </div>
 
       {/* Hidden File Input */}

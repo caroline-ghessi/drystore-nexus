@@ -203,189 +203,163 @@ export function MessageItem({
   return (
     <>
       {showDateSeparator && (
-        <div className="flex items-center justify-center py-4">
-          <div className="bg-muted px-3 py-1 rounded-full text-xs text-muted-foreground">
+        <div className="flex items-center justify-center my-4">
+          <div className="bg-chat-date-separator/90 backdrop-blur px-3 py-1 rounded-lg text-xs text-gray-600 shadow-sm">
             {formatDate(message.created_at)}
           </div>
         </div>
       )}
       
-      {isCurrentUser ? (
-        // Layout para mensagens próprias (direita)
-        <div 
-          className="group px-4 py-2 transition-colors"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          ref={(el) => registerMessageRef?.(message.id, el)}
-        >
-          <div className="flex justify-end">
-            <div className={`transition-opacity mr-2 flex items-start pt-1 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-              {onReply && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onReply({
-                    id: message.id,
-                    content: message.content,
-                    user_id: message.user_id,
-                    display_name: author.display_name,
-                    avatar_url: author.avatar_url,
-                    created_at: message.created_at
-                  })}
-                  className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-                >
-                  <Reply className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            
-            <div className="max-w-[70%] min-w-0">
-              <div className={`bg-orange-100 text-gray-900 rounded-2xl rounded-br-md px-4 py-2 ${isHighlighted ? 'ring-2 ring-primary/50 animate-pulse' : ''}`}>
-                <div className="text-xs text-gray-600 mb-1 text-right">
-                  {formatTime(message.created_at)}
-                  {message.edited && (
-                    <span className="ml-2">editado</span>
-                  )}
-                </div>
-
-                {replyToMessage && (
-                  <button
-                    type="button"
-                    className="mb-2 w-full text-left rounded-md bg-muted/50 border-l-2 border-primary/50 px-3 py-2 hover:bg-muted/70 focus:outline-none"
-                    onClick={() => onJumpToMessage?.(replyToMessage.id)}
-                    aria-label="Ir para mensagem respondida"
-                  >
-                    <div className="text-xs font-medium text-primary mb-1">
-                      {replyToMessage.display_name || 'Usuário'}
-                    </div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      {(() => {
-                        const cleanText = extractCleanText(replyToMessage.content)
-                        return cleanText.length > 80 ? cleanText.slice(0, 80) + '...' : cleanText
-                      })()}
-                    </div>
-                  </button>
-                )}
-                
-                <div className="break-words">
-                  {renderContent(message.content)}
-                </div>
-                
-                {message.attachments && message.attachments.length > 0 && (
-                  <div className="mt-2">
-                    {renderAttachments()}
-                  </div>
-                )}
-              </div>
-
-              {repliesCount && repliesCount > 0 && (
-                <button
-                  type="button"
-                  onClick={() => lastReplyId && onJumpToMessage?.(lastReplyId)}
-                  className="mt-1 text-xs text-primary hover:underline ml-auto block"
-                  aria-label="Ver respostas"
-                >
-                  {repliesCount} {repliesCount === 1 ? 'resposta' : 'respostas'}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : (
-        // Layout para mensagens de outros (esquerda)
-        <div 
-          className="group hover:bg-muted/30 px-4 py-2 transition-colors"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          ref={(el) => registerMessageRef?.(message.id, el)}
-        >
-          <div className="flex gap-3">
-            <Avatar className="w-10 h-10 flex-shrink-0">
+      <div 
+        className={`flex mb-1 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        ref={(el) => registerMessageRef?.(message.id, el)}
+      >
+        {/* Avatar (apenas para mensagens dos outros) */}
+        {!isCurrentUser && (
+          <div className="w-8 mr-2 flex-shrink-0">
+            <Avatar className="w-8 h-8">
               <AvatarImage src={author.avatar_url || undefined} />
-              <AvatarFallback>
+              <AvatarFallback className="text-xs">
                 {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
+          </div>
+        )}
+        
+        {/* Botão de Reply (lado esquerdo para mensagens próprias) */}
+        {isCurrentUser && isHovered && onReply && (
+          <div className="mr-2 flex items-end pb-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onReply({
+                id: message.id,
+                content: message.content,
+                user_id: message.user_id,
+                display_name: author.display_name,
+                avatar_url: author.avatar_url,
+                created_at: message.created_at
+              })}
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground opacity-70 hover:opacity-100"
+            >
+              <Reply className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        
+        {/* Balão da Mensagem */}
+        <div className={`relative max-w-[70%] ${isCurrentUser ? 'ml-auto' : ''}`}>
+          {/* Nome do usuário (apenas mensagens dos outros) */}
+          {!isCurrentUser && (
+            <div className="text-xs text-gray-600 mb-1 ml-2">
+              {displayName}
+            </div>
+          )}
+          
+          <div 
+            className={`
+              relative px-3 py-2 rounded-lg shadow-sm
+              ${isCurrentUser 
+                ? 'bg-chat-message-own rounded-br-none' 
+                : 'bg-chat-message-other rounded-bl-none'
+              }
+              ${isHighlighted ? 'ring-2 ring-primary/50 animate-pulse' : ''}
+            `}
+          >
+            {/* Triângulo do balão */}
+            <div className={`
+              absolute bottom-0 w-0 h-0
+              ${isCurrentUser 
+                ? 'right-[-8px] border-l-[8px] border-l-[hsl(var(--chat-message-own))] border-t-[8px] border-t-transparent'
+                : 'left-[-8px] border-r-[8px] border-r-[hsl(var(--chat-message-other))] border-t-[8px] border-t-transparent'
+              }
+            `}></div>
             
-            <div className="flex-1 min-w-0 max-w-[70%]">
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="font-semibold text-foreground">
-                  {displayName}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {formatTime(message.created_at)}
-                </span>
-                {message.edited && (
-                  <Badge variant="secondary" className="text-xs">
-                    editado
-                  </Badge>
-                )}
-              </div>
-              
-              <div className={`bg-muted rounded-2xl rounded-bl-md px-4 py-2 ${isHighlighted ? 'ring-2 ring-primary/50 animate-pulse' : ''}`}>
-                {replyToMessage && (
-                  <button
-                    type="button"
-                    className="mb-2 w-full text-left rounded-md bg-muted/50 border-l-2 border-primary/50 px-3 py-2 hover:bg-muted/70 focus:outline-none"
-                    onClick={() => onJumpToMessage?.(replyToMessage.id)}
-                    aria-label="Ir para mensagem respondida"
-                  >
-                    <div className="text-xs font-medium text-primary mb-1">
-                      {replyToMessage.display_name || 'Usuário'}
-                    </div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      {(() => {
-                        const cleanText = extractCleanText(replyToMessage.content)
-                        return cleanText.length > 80 ? cleanText.slice(0, 80) + '...' : cleanText
-                      })()}
-                    </div>
-                  </button>
-                )}
-                <div className="text-foreground break-words">
-                  {renderContent(message.content)}
+            {/* Quote de resposta */}
+            {replyToMessage && (
+              <button
+                type="button"
+                className={`mb-2 w-full text-left rounded-md border-l-2 border-primary/50 px-3 py-2 hover:bg-black/5 focus:outline-none
+                  ${isCurrentUser ? 'bg-orange-200/30' : 'bg-gray-100/80'}`}
+                onClick={() => onJumpToMessage?.(replyToMessage.id)}
+                aria-label="Ir para mensagem respondida"
+              >
+                <div className="text-xs font-medium text-primary mb-1">
+                  {replyToMessage.display_name || 'Usuário'}
                 </div>
-                
-                {message.attachments && message.attachments.length > 0 && (
-                  <div className="mt-2">
-                    {renderAttachments()}
-                  </div>
-                )}
-              </div>
-
-              {repliesCount && repliesCount > 0 && (
-                <button
-                  type="button"
-                  onClick={() => lastReplyId && onJumpToMessage?.(lastReplyId)}
-                  className="mt-1 text-xs text-primary hover:underline text-left"
-                  aria-label="Ver respostas"
-                >
-                  {repliesCount} {repliesCount === 1 ? 'resposta' : 'respostas'}
-                </button>
-              )}
+                <div className="text-xs text-gray-600 truncate">
+                  {(() => {
+                    const cleanText = extractCleanText(replyToMessage.content)
+                    return cleanText.length > 50 ? cleanText.slice(0, 50) + '...' : cleanText
+                  })()}
+                </div>
+              </button>
+            )}
+            
+            {/* Conteúdo da mensagem */}
+            <div className="text-[15px] text-gray-900 break-words">
+              {renderContent(message.content)}
             </div>
             
-            <div className={`transition-opacity flex items-start pt-1 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-              {onReply && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onReply({
-                    id: message.id,
-                    content: message.content,
-                    user_id: message.user_id,
-                    display_name: author.display_name,
-                    avatar_url: author.avatar_url,
-                    created_at: message.created_at
-                  })}
-                  className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-                >
-                  <Reply className="h-4 w-4" />
-                </Button>
+            {/* Anexos */}
+            {message.attachments && message.attachments.length > 0 && (
+              <div className="mt-2">
+                {renderAttachments()}
+              </div>
+            )}
+            
+            {/* Hora e Status */}
+            <div className="flex items-center justify-end gap-1 mt-1">
+              <span className="text-[11px] text-gray-500">
+                {formatTime(message.created_at)}
+              </span>
+              {message.edited && (
+                <span className="text-[11px] text-gray-500">• editado</span>
+              )}
+              {isCurrentUser && (
+                <span className="text-primary">
+                  ✓✓
+                </span>
               )}
             </div>
           </div>
+
+          {/* Link de respostas */}
+          {repliesCount && repliesCount > 0 && (
+            <button
+              type="button"
+              onClick={() => lastReplyId && onJumpToMessage?.(lastReplyId)}
+              className={`mt-1 text-xs text-primary hover:underline ${isCurrentUser ? 'text-right' : 'text-left'} block w-full`}
+              aria-label="Ver respostas"
+            >
+              {repliesCount} {repliesCount === 1 ? 'resposta' : 'respostas'}
+            </button>
+          )}
         </div>
-      )}
+        
+        {/* Botão de Reply (lado direito para mensagens dos outros) */}
+        {!isCurrentUser && isHovered && onReply && (
+          <div className="ml-2 flex items-end pb-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onReply({
+                id: message.id,
+                content: message.content,
+                user_id: message.user_id,
+                display_name: author.display_name,
+                avatar_url: author.avatar_url,
+                created_at: message.created_at
+              })}
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground opacity-70 hover:opacity-100"
+            >
+              <Reply className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </div>
 
        <Dialog open={!!preview} onOpenChange={(open) => { if (!open) setPreview(null) }}>
          <DialogContent className="max-w-4xl">

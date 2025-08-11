@@ -80,11 +80,13 @@ All colors MUST be HSL.
     --sidebar-muted: 220 13% 97%;           /* #F8F9FA - Fundo items */
     --sidebar-muted-foreground: 214 13% 35%; /* #64748B - Cinza médio mais escuro para labels */
 
-    /* Chat specific colors - HSL format */
-    --chat-background: 0 0% 100%;
-    --chat-message-own: 24 100% 97%;
-    --chat-message-other: 0 0% 98%;
-    --chat-input: 0 0% 97%;
+    /* Chat specific colors - HSL format - WhatsApp Style */
+    --chat-background: 39 25% 89%; /* #E5DDD5 - WhatsApp background */
+    --chat-header: 220 13% 95%; /* #F0F2F5 - WhatsApp header */
+    --chat-message-own: 24 100% 97%; /* Orange tint for own messages */
+    --chat-message-other: 0 0% 100%; /* White for other messages */
+    --chat-input: 220 13% 95%; /* #F0F2F5 - WhatsApp input area */
+    --chat-date-separator: 0 0% 100%; /* White for date separators */
 
     /* Status indicators - HSL format */
     --status-online: 142 76% 45%;

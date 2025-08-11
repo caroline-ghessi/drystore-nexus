@@ -88,9 +88,11 @@ export default {
 				},
 				chat: {
 					background: 'hsl(var(--chat-background))',
+					header: 'hsl(var(--chat-header))',
 					'message-own': 'hsl(var(--chat-message-own))',
 					'message-other': 'hsl(var(--chat-message-other))',
-					input: 'hsl(var(--chat-input))'
+					input: 'hsl(var(--chat-input))',
+					'date-separator': 'hsl(var(--chat-date-separator))'
 				},
 				status: {
 					online: 'hsl(var(--status-online))',

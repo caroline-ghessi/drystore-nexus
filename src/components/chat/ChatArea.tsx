@@ -118,48 +118,69 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
   }, [messages])
 
   return (
-    <div className="flex flex-col h-full bg-chat-background relative">
-      {/* Slack-style Header */}
-      <div className="border-b border-border px-6 py-4 bg-background">
+    <div 
+      className="flex flex-col h-full bg-chat-background relative"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='%23e5ddd5'/%3E%3Cpath d='M0 0l40 40M40 0L0 40' stroke='%23d4cfc7' stroke-width='0.5' opacity='0.2'/%3E%3C/svg%3E")`,
+        backgroundSize: '40px 40px'
+      }}
+    >
+      {/* WhatsApp-style Header */}
+      <div className="border-b border-gray-300 px-4 py-2 bg-chat-header">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2">
-              {isPrivate ? (
-                <Lock className="h-5 w-5 text-muted-foreground" />
-              ) : (
-                <Hash className="h-5 w-5 text-muted-foreground" />
-              )}
-              <h1 className="text-xl font-bold text-foreground">
-                {isDM ? channelName : channelName}
-              </h1>
-            </div>
-            {!isDM && (
-              <div className="text-sm text-muted-foreground">
-                {isPrivate ? "🔒 Canal privado" : "Público"}
+          <div className="flex items-center gap-3">
+            {/* Avatar do Canal/Usuário */}
+            <div className="relative">
+              <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
+                {isDM ? (
+                  <span className="text-white font-semibold text-lg">
+                    {channelName.charAt(0).toUpperCase()}
+                  </span>
+                ) : (
+                  <Hash className="w-6 h-6 text-white" />
+                )}
               </div>
-            )}
+              {isDM && (
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-status-online border-2 border-white rounded-full"></div>
+              )}
+            </div>
+            
+            {/* Info do Canal */}
+            <div>
+              <h2 className="font-semibold text-gray-900 text-lg">
+                {isDM ? channelName : `#${channelName}`}
+              </h2>
+              <p className="text-xs text-gray-600">
+                {isDM 
+                  ? "Última visualização há 5 min" 
+                  : isPrivate 
+                    ? "🔒 Canal privado da equipe"
+                    : "Canal público da equipe Drystore"
+                }
+              </p>
+            </div>
           </div>
           
-          {isDM && (
-            <UserStatus 
-              name=""
-              status="online"
-            />
-          )}
+          {/* Ações do Header */}
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
+              📹
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
+              📞
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
+              🔍
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
+              ⋮
+            </Button>
+          </div>
         </div>
-        
-        {!isDM && (
-          <p className="text-sm text-muted-foreground mt-2">
-            {isPrivate 
-              ? "Este canal é privado. Apenas membros específicos podem visualizar e participar."
-              : "Canal público da equipe Drystore"
-            }
-          </p>
-        )}
       </div>
 
-      {/* Messages Area - Slack style */}
-      <ScrollArea className="flex-1 px-6" viewportRef={viewportRef}>
+      {/* Messages Area - WhatsApp style */}
+      <ScrollArea className="flex-1 px-4" viewportRef={viewportRef}>
         <div className="py-4 pb-28">
           {loading || membershipLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -232,8 +253,8 @@ export function ChatArea({ channelId, channelName, isPrivate = false, isDM = fal
       )}
 
 
-      {/* Message Input */}
-      <div className="sticky bottom-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t px-6 pb-6 pt-3">
+      {/* Message Input - WhatsApp style */}
+      <div className="sticky bottom-0 z-10 bg-chat-input border-t border-gray-300 px-4 py-3">
         {(!isDM && isMember === false) ? (
           <div className="text-center py-4 text-muted-foreground text-sm">
             {isPrivate 
