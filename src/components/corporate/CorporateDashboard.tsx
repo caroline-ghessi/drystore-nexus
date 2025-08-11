@@ -167,115 +167,115 @@ export function CorporateDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {isAdmin ? (
             <>
-              <div className="bg-gradient-card p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up">
+              <div className="bg-gradient-to-br from-drystore-orange/85 to-drystore-orange/70 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    <Users className="w-6 h-6" />
+                  <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                    <Users className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-green-300 text-sm font-semibold">+12%</span>
+                  <span className="text-white/95 text-sm font-semibold bg-white/10 px-2 py-1 rounded backdrop-blur-sm">+12%</span>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-1">{(metrics as any).totalUsers || 0}</div>
-                  <div className="text-white/80 text-sm">Usuários Totais</div>
+                  <div className="text-3xl font-bold mb-1 text-white">{(metrics as any).totalUsers || 0}</div>
+                  <div className="text-white/90 text-sm font-medium">Usuários Totais</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-primary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.1s'}}>
+              <div className="bg-gradient-to-br from-drystore-orange/80 to-drystore-orange/65 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.1s'}}>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    <MessageCircle className="w-6 h-6" />
+                  <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                    <MessageCircle className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-green-300 text-sm font-semibold">+8%</span>
+                  <span className="text-white/95 text-sm font-semibold bg-white/10 px-2 py-1 rounded backdrop-blur-sm">+8%</span>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-1">{(metrics as any).totalMessages || 0}</div>
-                  <div className="text-white/80 text-sm">Mensagens Totais</div>
+                  <div className="text-3xl font-bold mb-1 text-white">{(metrics as any).totalMessages || 0}</div>
+                  <div className="text-white/90 text-sm font-medium">Mensagens Totais</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-secondary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.2s'}}>
+              <div className="bg-gradient-to-br from-drystore-orange/75 to-drystore-orange/60 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.2s'}}>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    <FileText className="w-6 h-6" />
+                  <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                    <FileText className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-blue-300 text-sm font-semibold">Esta semana</span>
+                  <span className="text-white/95 text-sm font-semibold bg-white/10 px-2 py-1 rounded backdrop-blur-sm">Esta semana</span>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-1">{(metrics as any).documentsCreated || 0}</div>
-                  <div className="text-white/80 text-sm">Documentos Criados</div>
+                  <div className="text-3xl font-bold mb-1 text-white">{(metrics as any).documentsCreated || 0}</div>
+                  <div className="text-white/90 text-sm font-medium">Documentos Criados</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-hero p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.3s'}}>
+              <div className="bg-gradient-to-br from-drystore-orange/90 to-drystore-orange/75 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.3s'}}>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    <TrendingUp className="w-6 h-6" />
+                  <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                    <TrendingUp className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-green-300 text-sm font-semibold">+5%</span>
+                  <span className="text-white/95 text-sm font-semibold bg-white/10 px-2 py-1 rounded backdrop-blur-sm">+5%</span>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-1">{(metrics as any).engagementRate || 0}%</div>
-                  <div className="text-white/80 text-sm">Taxa de Engajamento</div>
+                  <div className="text-3xl font-bold mb-1 text-white">{(metrics as any).engagementRate || 0}%</div>
+                  <div className="text-white/90 text-sm font-medium">Taxa de Engajamento</div>
                 </div>
               </div>
             </>
           ) : (
             <>
-              <div className="bg-gradient-card p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up">
+              <div className="bg-gradient-to-br from-drystore-orange/85 to-drystore-orange/70 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    <Bell className="w-6 h-6" />
+                  <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                    <Bell className="w-6 h-6 text-white" />
                   </div>
                   {metrics.unreadAnnouncements > 0 && (
-                    <span className="text-red-300 text-sm font-semibold">Novo!</span>
+                    <span className="text-white/95 text-sm font-semibold bg-red-500/80 px-2 py-1 rounded backdrop-blur-sm">Novo!</span>
                   )}
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-1">{metrics.unreadAnnouncements}</div>
-                  <div className="text-white/80 text-sm">Comunicados Não Lidos</div>
+                  <div className="text-3xl font-bold mb-1 text-white">{metrics.unreadAnnouncements}</div>
+                  <div className="text-white/90 text-sm font-medium">Comunicados Não Lidos</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-primary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.1s'}}>
+              <div className="bg-gradient-to-br from-drystore-orange/80 to-drystore-orange/65 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.1s'}}>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    <FileText className="w-6 h-6" />
+                  <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                    <FileText className="w-6 h-6 text-white" />
                   </div>
                   {metrics.unreadDocuments > 0 && (
-                    <span className="text-yellow-300 text-sm font-semibold">Pendente</span>
+                    <span className="text-white/95 text-sm font-semibold bg-yellow-500/80 px-2 py-1 rounded backdrop-blur-sm">Pendente</span>
                   )}
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-1">{metrics.unreadDocuments}</div>
-                  <div className="text-white/80 text-sm">Documentos Pendentes</div>
+                  <div className="text-3xl font-bold mb-1 text-white">{metrics.unreadDocuments}</div>
+                  <div className="text-white/90 text-sm font-medium">Documentos Pendentes</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-secondary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.2s'}}>
+              <div className="bg-gradient-to-br from-drystore-orange/75 to-drystore-orange/60 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.2s'}}>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    <CheckSquare className="w-6 h-6" />
+                  <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                    <CheckSquare className="w-6 h-6 text-white" />
                   </div>
                   {metrics.pendingTasks > 0 && (
-                    <span className="text-orange-300 text-sm font-semibold">Ação</span>
+                    <span className="text-white/95 text-sm font-semibold bg-orange-500/80 px-2 py-1 rounded backdrop-blur-sm">Ação</span>
                   )}
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-1">{metrics.pendingTasks}</div>
-                  <div className="text-white/80 text-sm">Tarefas Pendentes</div>
+                  <div className="text-3xl font-bold mb-1 text-white">{metrics.pendingTasks}</div>
+                  <div className="text-white/90 text-sm font-medium">Tarefas Pendentes</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-hero p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.3s'}}>
+              <div className="bg-gradient-to-br from-drystore-orange/90 to-drystore-orange/75 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.3s'}}>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    <Activity className="w-6 h-6" />
+                  <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                    <Activity className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-green-300 text-sm font-semibold">Hoje</span>
+                  <span className="text-white/95 text-sm font-semibold bg-green-500/80 px-2 py-1 rounded backdrop-blur-sm">Hoje</span>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-1">{metrics.activityToday}</div>
-                  <div className="text-white/80 text-sm">Atividade Hoje</div>
+                  <div className="text-3xl font-bold mb-1 text-white">{metrics.activityToday}</div>
+                  <div className="text-white/90 text-sm font-medium">Atividade Hoje</div>
                 </div>
               </div>
             </>
