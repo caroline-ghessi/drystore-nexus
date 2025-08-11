@@ -57,6 +57,13 @@ export function MainMenu({ searchTerm }: MainMenuProps) {
       color: 'text-green-500'
     },
     { 
+      id: 'documents', 
+      label: 'Documentos', 
+      icon: FileText, 
+      path: '/documents',
+      color: 'text-purple-500'
+    },
+    { 
       id: 'people', 
       label: 'Pessoas', 
       icon: Users, 

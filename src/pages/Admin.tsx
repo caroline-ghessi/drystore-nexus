@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Briefcase, Shield } from 'lucide-react';
+import { Users, Briefcase, Shield, Mail } from 'lucide-react';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { JobPositionManagement } from '@/components/admin/JobPositionManagement';
 import { PermissionManagement } from '@/components/admin/PermissionManagement';
+import { InvitationManagement } from '@/components/admin/InvitationManagement';
 
 export default function Admin() {
   return (
@@ -17,10 +18,14 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="users" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Usuários
+          </TabsTrigger>
+          <TabsTrigger value="invitations" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Convites
           </TabsTrigger>
           <TabsTrigger value="positions" className="flex items-center gap-2">
             <Briefcase className="h-4 w-4" />
@@ -42,6 +47,20 @@ export default function Admin() {
             </CardHeader>
             <CardContent>
               <UserManagement />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="invitations">
+          <Card>
+            <CardHeader>
+              <CardTitle>Gerenciamento de Convites</CardTitle>
+              <CardDescription>
+                Envie convites por email e gerencie usuários pendentes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <InvitationManagement />
             </CardContent>
           </Card>
         </TabsContent>

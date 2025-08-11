@@ -17,6 +17,7 @@ import Documents from "./pages/Documents";
 import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
+import InviteAcceptance from "./pages/InviteAcceptance";
 import NotFound from "./pages/NotFound";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import Announcements from "./pages/Announcements";
@@ -62,6 +63,7 @@ function App() {
               <Route path="/activity" element={<ProtectedRoute><Layout><Activity /></Layout></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><AdminRoute><Layout><Admin /></Layout></AdminRoute></ProtectedRoute>} />
+              <Route path="/invite/:token" element={<InviteAcceptance />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
