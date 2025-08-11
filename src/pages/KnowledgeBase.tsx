@@ -1,79 +1,109 @@
 import { useState, useEffect } from 'react';
-import { Search, BookOpen, Filter, Plus, Star, Clock, Users, Tag } from 'lucide-react';
+import { Search, Plus, FileText, Eye, Calendar, Tag, Settings, Shield, GraduationCap, HelpCircle, Code, Users } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { CreateDocumentModal } from '@/components/modals/CreateDocumentModal';
+import { formatDate } from '@/lib/utils';
+import { useAdminAccess } from '@/hooks/useAdminAccess';
+import { CategoryManagement } from '@/components/admin/CategoryManagement';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface Document {
   id: string;
   title: string;
-  category: string;
-  tags: string[];
+  category: string | null;
+  tags: string[] | null;
   created_at: string;
   created_by: string;
   is_public: boolean;
+  edited_at?: string;
+}
+
+interface DocumentCategory {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
+  icon: string;
 }
 
 interface Category {
   name: string;
   count: number;
   color: string;
-  icon: React.ReactNode;
+  icon: string;
 }
+
+const iconMap = {
+  Shield,
+  Settings,
+  GraduationCap,
+  HelpCircle,
+  Code,
+  Users,
+  FileText,
+};
 
 export default function KnowledgeBase() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [documentCategories, setDocumentCategories] = useState<DocumentCategory[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const { user } = useAuth();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const { isAdmin } = useAdminAccess();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchDocuments();
+    fetchDocumentCategories();
   }, []);
 
   useEffect(() => {
     filterDocuments();
-  }, [documents, searchQuery, selectedCategory]);
+  }, [documents, searchQuery, selectedCategory, documentCategories]);
 
   const fetchDocuments = async () => {
     try {
       const { data, error } = await supabase
         .from('documents')
         .select('*')
+        .eq('is_public', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching documents:', error);
+        return;
+      }
 
       setDocuments(data || []);
-      
-      // Generate categories from documents
-      const categoryMap = new Map();
-      data?.forEach(doc => {
-        if (doc.category) {
-          categoryMap.set(doc.category, (categoryMap.get(doc.category) || 0) + 1);
-        }
-      });
-
-      const categoriesData: Category[] = [
-        { name: 'Políticas Corporativas', count: categoryMap.get('Políticas') || 0, color: 'primary', icon: <BookOpen className="w-4 h-4" /> },
-        { name: 'Processos e Procedimentos', count: categoryMap.get('Processos') || 0, color: 'success', icon: <Users className="w-4 h-4" /> },
-        { name: 'Treinamentos', count: categoryMap.get('Treinamentos') || 0, color: 'warning', icon: <Star className="w-4 h-4" /> },
-        { name: 'Documentação Técnica', count: categoryMap.get('Técnica') || 0, color: 'info', icon: <Tag className="w-4 h-4" /> },
-      ];
-
-      setCategories(categoriesData);
     } catch (error) {
-      console.error('Erro ao buscar documentos:', error);
+      console.error('Error fetching documents:', error);
+    }
+  };
+
+  const fetchDocumentCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('document_categories')
+        .select('*')
+        .order('name');
+
+      if (error) {
+        console.error('Error fetching document categories:', error);
+        return;
+      }
+
+      setDocumentCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching document categories:', error);
     }
   };
 
@@ -93,14 +123,37 @@ export default function KnowledgeBase() {
     }
 
     setFilteredDocuments(filtered);
+
+    // Generate category counts
+    const categoryMap = new Map<string, number>();
+    filtered.forEach(doc => {
+      if (doc.category) {
+        categoryMap.set(doc.category, (categoryMap.get(doc.category) || 0) + 1);
+      }
+    });
+
+    const categoryList: Category[] = documentCategories
+      .map(category => ({
+        name: category.name,
+        count: categoryMap.get(category.name) || 0,
+        color: category.color,
+        icon: category.icon
+      }))
+      .filter(category => category.count > 0 || selectedCategory === 'all');
+
+    setCategories(categoryList);
   };
 
-  const popularDocuments = [
-    { title: 'Código de Conduta e Ética', category: 'Políticas', views: 1234 },
-    { title: 'Manual do Colaborador', category: 'RH', views: 987 },
-    { title: 'Política de Segurança da Informação', category: 'TI', views: 654 },
-    { title: 'Procedimentos de Vendas', category: 'Comercial', views: 432 },
-  ];
+  const getCategoryIcon = (iconName: string) => {
+    const IconComponent = iconMap[iconName as keyof typeof iconMap] || FileText;
+    return <IconComponent className="w-4 h-4" />;
+  };
+
+  // Get popular documents (mock for now)
+  const popularDocuments = filteredDocuments.slice(0, 4).map((doc, index) => ({
+    ...doc,
+    views: Math.floor(Math.random() * 1000) + 100
+  }));
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -138,85 +191,114 @@ export default function KnowledgeBase() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="Todas as categorias" />
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filtrar por categoria" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas as categorias</SelectItem>
-                  <SelectItem value="Políticas">Políticas Corporativas</SelectItem>
-                  <SelectItem value="Processos">Processos e Procedimentos</SelectItem>
-                  <SelectItem value="Treinamentos">Treinamentos</SelectItem>
-                  <SelectItem value="Técnica">Documentação Técnica</SelectItem>
+                  {documentCategories.map((category) => (
+                    <SelectItem key={category.name} value={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <Button variant="outline" size="sm">
-                <Filter className="w-4 h-4 mr-2" />
-                Mais Filtros
-              </Button>
             </div>
             
-            <Button onClick={() => setCreateModalOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Criar Documento
-            </Button>
+            {isAdmin && (
+              <div className="flex items-center gap-2">
+                <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Gerenciar Categorias
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Gerenciamento de Categorias</DialogTitle>
+                    </DialogHeader>
+                    <CategoryManagement />
+                  </DialogContent>
+                </Dialog>
+                
+                <Button onClick={() => setIsCreateModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Documento
+                </Button>
+              </div>
+            )}
+            
+            {!isAdmin && (
+              <div className="text-sm text-muted-foreground">
+                Somente leitura - Apenas administradores podem criar documentos
+              </div>
+            )}
           </div>
 
           {/* Categories Grid */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Explorar por Categoria</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {categories.map((category) => (
-                <Card 
-                  key={category.name} 
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => setSelectedCategory(category.name.split(' ')[0])}
-                >
-                  <CardContent className="p-6">
-                    <div className={`w-12 h-12 rounded-lg bg-${category.color}/10 flex items-center justify-center mb-4`}>
-                      {category.icon}
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">{category.name}</h3>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        {category.count} documentos
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+          {categories.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Explorar por Categoria</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categories.map((category) => (
+                  <Card 
+                    key={category.name} 
+                    className="cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => setSelectedCategory(category.name)}
+                  >
+                    <CardContent className="p-6">
+                      <div 
+                        className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
+                        style={{ backgroundColor: `${category.color}20`, color: category.color }}
+                      >
+                        {getCategoryIcon(category.icon)}
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2">{category.name}</h3>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          {category.count} documento(s)
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Popular Documents */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Documentos Mais Acessados</h2>
-            <Card>
-              <CardContent className="p-0">
-                {popularDocuments.map((doc, index) => (
-                  <div 
-                    key={index}
-                    className="flex items-center p-4 hover:bg-muted/50 border-b last:border-0 cursor-pointer"
-                    onClick={() => navigate('/documents/1')}
-                  >
-                    <span className="text-2xl font-bold text-muted-foreground mr-4 w-8">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <div className="flex-1">
-                      <h4 className="font-medium mb-1">{doc.title}</h4>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{doc.category}</span>
-                        <span>•</span>
-                        <span>{doc.views} visualizações</span>
-                        <span>•</span>
-                        <span>Atualizado hoje</span>
+          {popularDocuments.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Documentos Mais Acessados</h2>
+              <Card>
+                <CardContent className="p-0">
+                  {popularDocuments.map((doc, index) => (
+                    <div 
+                      key={doc.id}
+                      className="flex items-center p-4 hover:bg-muted/50 border-b last:border-0 cursor-pointer"
+                      onClick={() => navigate(`/documents/${doc.id}`)}
+                    >
+                      <span className="text-2xl font-bold text-muted-foreground mr-4 w-8">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <div className="flex-1">
+                        <h4 className="font-medium mb-1">{doc.title}</h4>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span>{doc.category}</span>
+                          <span>•</span>
+                          <span>{doc.views} visualizações</span>
+                          <span>•</span>
+                          <span>Criado em {formatDate(doc.created_at)}</span>
+                        </div>
                       </div>
+                      {doc.category && <Badge variant="secondary">{doc.category}</Badge>}
                     </div>
-                    <Badge variant="secondary">{doc.category}</Badge>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Documents List */}
           <div>
@@ -239,9 +321,29 @@ export default function KnowledgeBase() {
                   <CardHeader>
                     <CardTitle className="text-lg">{doc.title}</CardTitle>
                     <CardDescription>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock className="w-4 h-4" />
-                        <span>{new Date(doc.created_at).toLocaleDateString('pt-BR')}</span>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>
+                            Criado em {formatDate(doc.created_at)}
+                            {doc.edited_at && doc.edited_at !== doc.created_at && (
+                              <span className="ml-2 text-orange-600">
+                                • Editado em {formatDate(doc.edited_at)}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/documents/${doc.id}`);
+                          }}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          Visualizar
+                        </Button>
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -271,10 +373,16 @@ export default function KnowledgeBase() {
         </div>
       </div>
 
-      <CreateDocumentModal 
-        open={createModalOpen} 
-        onOpenChange={setCreateModalOpen} 
-      />
+      {isAdmin && (
+        <CreateDocumentModal 
+          open={isCreateModalOpen} 
+          onOpenChange={setIsCreateModalOpen} 
+          onDocumentCreated={() => {
+            fetchDocuments();
+            fetchDocumentCategories();
+          }}
+        />
+      )}
     </div>
   );
 }

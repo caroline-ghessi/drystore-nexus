@@ -6,11 +6,13 @@ import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { useToast } from "@/hooks/use-toast"
-import { Download, Eye, FileText, Calendar, User } from "lucide-react"
+import { Download, Eye, FileText, Calendar, User, Trash2 } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { RichTextEditor } from "@/components/editor/RichTextEditor"
 import { useAdminAccess } from "@/hooks/useAdminAccess"
 import { AttachmentsSection } from "@/components/documents/AttachmentsSection"
+import { DeleteDocumentModal } from "@/components/modals/DeleteDocumentModal"
+import { formatDate } from "@/lib/utils"
 
 // Mock documents data
 const documentsData: Record<string, {
@@ -175,6 +177,7 @@ export default function Documents() {
   const [editing, setEditing] = useState(false)
   const [content, setContent] = useState('')
   const [saving, setSaving] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
   useEffect(() => {
     if (documentId) {
@@ -359,6 +362,16 @@ export default function Documents() {
                   <Download className="h-4 w-4 mr-2" />
                   Download
                 </Button>
+                {isAdmin && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setIsDeleteModalOpen(true)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Excluir
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -373,7 +386,12 @@ export default function Documents() {
                 <div>
                   <p className="text-sm font-medium">Última modificação</p>
                   <p className="text-sm text-muted-foreground">
-                    {document.updated_at ? new Date(document.updated_at).toLocaleDateString('pt-BR') : '-'}
+                    {document.updated_at ? formatDate(document.updated_at) : '-'}
+                    {document.edited_at && document.edited_at !== document.created_at && (
+                      <span className="block text-orange-600">
+                        Editado em {formatDate(document.edited_at)}
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -463,6 +481,16 @@ export default function Documents() {
         {/* Attachments Section */}
         <AttachmentsSection documentId={documentId!} canEdit={canEdit} />
       </div>
+
+      {/* Delete Document Modal */}
+      {isAdmin && document && (
+        <DeleteDocumentModal
+          open={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+          documentId={document.id}
+          documentTitle={document.title}
+        />
+      )}
     </div>
   )
 }

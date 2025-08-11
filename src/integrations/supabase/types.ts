@@ -115,6 +115,39 @@ export type Database = {
         }
         Relationships: []
       }
+      document_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       document_permissions: {
         Row: {
           document_id: string
@@ -156,6 +189,7 @@ export type Database = {
           content: Json | null
           created_at: string
           created_by: string
+          edited_at: string | null
           id: string
           is_public: boolean | null
           last_modified_by: string | null
@@ -169,6 +203,7 @@ export type Database = {
           content?: Json | null
           created_at?: string
           created_by?: string
+          edited_at?: string | null
           id?: string
           is_public?: boolean | null
           last_modified_by?: string | null
@@ -182,6 +217,7 @@ export type Database = {
           content?: Json | null
           created_at?: string
           created_by?: string
+          edited_at?: string | null
           id?: string
           is_public?: boolean | null
           last_modified_by?: string | null
