@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { useAdminAccess } from '@/hooks/useAdminAccess'
 import { useToast } from '@/hooks/use-toast'
 
 export interface Channel {
@@ -18,6 +19,7 @@ export function useChannels() {
   const [channels, setChannels] = useState<Channel[]>([])
   const [loading, setLoading] = useState(true)
   const { user } = useAuth()
+  const { isAdmin } = useAdminAccess()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -48,7 +50,14 @@ export function useChannels() {
   }, [user, toast])
 
   const createChannel = async (name: string, description?: string, isPrivate: boolean = false) => {
-    if (!user) return null
+    if (!user || !isAdmin) {
+      toast({
+        title: "Acesso negado",
+        description: "Apenas administradores podem criar canais.",
+        variant: "destructive",
+      });
+      return null;
+    }
 
     try {
       const { data, error } = await supabase

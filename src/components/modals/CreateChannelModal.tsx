@@ -8,7 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
+import { useAdminAccess } from '@/hooks/useAdminAccess';
+import { Loader2, Shield } from 'lucide-react';
 
 interface CreateChannelModalProps {
   open: boolean;
@@ -25,10 +26,18 @@ export function CreateChannelModal({ open, onOpenChange, onChannelCreated }: Cre
   });
   const { toast } = useToast();
   const { user } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdminAccess();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !isAdmin) {
+      toast({
+        title: "Acesso negado",
+        description: "Apenas administradores podem criar canais.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setLoading(true);
 
@@ -76,6 +85,37 @@ export function CreateChannelModal({ open, onOpenChange, onChannelCreated }: Cre
       setLoading(false);
     }
   };
+
+  if (adminLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[425px]">
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[425px]">
+          <div className="text-center p-8 space-y-4">
+            <Shield className="h-16 w-16 mx-auto text-muted-foreground" />
+            <h2 className="text-xl font-semibold">Acesso Restrito</h2>
+            <p className="text-muted-foreground">
+              Apenas administradores podem criar novos canais.
+            </p>
+            <Button onClick={() => onOpenChange(false)} variant="outline">
+              Fechar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

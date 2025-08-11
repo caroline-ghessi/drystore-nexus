@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
+import { useAdminAccess } from "@/hooks/useAdminAccess"
 import { useNavigate } from "react-router-dom"
 import { CreateChannelModal } from "@/components/modals/CreateChannelModal"
 
@@ -32,6 +33,7 @@ export default function Messages() {
   const [searchQuery, setSearchQuery] = useState("")
   const [createChannelOpen, setCreateChannelOpen] = useState(false)
   const { user } = useAuth()
+  const { isAdmin } = useAdminAccess()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -96,17 +98,19 @@ export default function Messages() {
           
           {/* Quick Actions */}
           <div className="flex gap-4 mb-8">
-            <Button 
-              onClick={() => setCreateChannelOpen(true)}
-              className="flex-1 h-16"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Criar Canal
-            </Button>
+            {isAdmin && (
+              <Button 
+                onClick={() => setCreateChannelOpen(true)}
+                className="flex-1 h-16"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Criar Canal
+              </Button>
+            )}
             <Button 
               variant="outline" 
               onClick={() => navigate('/dm/new')}
-              className="flex-1 h-16"
+              className={`${isAdmin ? 'flex-1' : 'w-full'} h-16`}
             >
               <MessageCircle className="w-5 h-5 mr-2" />
               Nova Conversa
