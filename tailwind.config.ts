@@ -94,6 +94,15 @@ export default {
 					input: 'hsl(var(--chat-input))',
 					'date-separator': 'hsl(var(--chat-date-separator))'
 				},
+				'chat-list': {
+					hover: 'hsl(var(--chat-list-hover))',
+					active: 'hsl(var(--chat-list-active))',
+					border: 'hsl(var(--chat-list-border))',
+					title: 'hsl(var(--chat-list-title))',
+					message: 'hsl(var(--chat-list-message))',
+					time: 'hsl(var(--chat-list-time))',
+					muted: 'hsl(var(--chat-list-muted))'
+				},
 				status: {
 					online: 'hsl(var(--status-online))',
 					away: 'hsl(var(--status-away))',
