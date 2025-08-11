@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminAccess } from '@/hooks/useAdminAccess';
+import { useReadTracking } from '@/hooks/useReadTracking';
 import { supabase } from '@/integrations/supabase/client';
 import CreateAnnouncementModal from '@/components/announcements/CreateAnnouncementModal';
 import { extractTextFromTipTapJSON } from '@/utils/extractTextFromTipTap';
@@ -74,6 +75,7 @@ export default function Announcements() {
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
   const { user } = useAuth();
   const { isAdmin } = useAdminAccess();
+  const { markAnnouncementRead, getAnnouncementReadStatus } = useReadTracking();
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [filteredAnnouncements, setFilteredAnnouncements] = useState<Announcement[]>([]);

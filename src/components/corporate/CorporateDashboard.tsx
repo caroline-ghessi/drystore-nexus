@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { MentionsList } from '@/components/mentions/MentionsList';
+import { usePersonalMetrics } from '@/hooks/usePersonalMetrics';
+import { usePendingTasks } from '@/hooks/usePendingTasks';
 import { 
   TrendingUp, 
   Users, 
@@ -14,7 +16,10 @@ import {
   Calendar,
   Award,
   Bell,
-  ArrowRight
+  ArrowRight,
+  CheckSquare,
+  Activity,
+  CheckCircle2
 } from 'lucide-react';
 
 interface MetricCardProps {
@@ -68,7 +73,10 @@ interface TaskItem {
 }
 
 export function CorporateDashboard() {
-  const metrics = [
+  const { metrics, loading: metricsLoading, isAdmin } = usePersonalMetrics();
+  const { tasks: pendingTasks, loading: tasksLoading, getTasksByPriority } = usePendingTasks();
+  
+  const defaultMetrics = [
     {
       title: 'Colaboradores Ativos',
       value: '284',
@@ -126,35 +134,6 @@ export function CorporateDashboard() {
     }
   ];
 
-  const tasks: TaskItem[] = [
-    {
-      id: '1',
-      title: 'Ler Código de Conduta',
-      description: 'Revisar e confirmar leitura do código de conduta atualizado',
-      deadline: 'Hoje',
-      completed: false,
-      priority: 'high'
-    },
-    {
-      id: '2',
-      title: 'Completar Treinamento de Segurança',
-      description: 'Módulo obrigatório sobre segurança da informação',
-      deadline: 'Em 2 dias',
-      completed: false,
-      priority: 'high'
-    },
-    {
-      id: '3',
-      title: 'Avaliação de Performance',
-      description: 'Preencher auto-avaliação trimestral',
-      deadline: 'Em 5 dias',
-      completed: true,
-      priority: 'medium'
-    }
-  ];
-
-  const pendingTasks = tasks.filter(task => !task.completed);
-  const completionRate = ((tasks.length - pendingTasks.length) / tasks.length) * 100;
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
@@ -186,57 +165,121 @@ export function CorporateDashboard() {
 
         {/* Métricas com KPI Cards Modernos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-card p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                <Users className="w-6 h-6" />
+          {isAdmin ? (
+            <>
+              <div className="bg-gradient-card p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <Users className="w-6 h-6" />
+                  </div>
+                  <span className="text-green-300 text-sm font-semibold">+12%</span>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold mb-1">{(metrics as any).totalUsers || 0}</div>
+                  <div className="text-white/80 text-sm">Usuários Totais</div>
+                </div>
               </div>
-              <span className="text-green-300 text-sm font-semibold">+12%</span>
-            </div>
-            <div>
-              <div className="text-3xl font-bold mb-1">284</div>
-              <div className="text-white/80 text-sm">Colaboradores Ativos</div>
-            </div>
-          </div>
 
-          <div className="bg-gradient-primary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.1s'}}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                <MessageCircle className="w-6 h-6" />
+              <div className="bg-gradient-primary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.1s'}}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <MessageCircle className="w-6 h-6" />
+                  </div>
+                  <span className="text-green-300 text-sm font-semibold">+8%</span>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold mb-1">{(metrics as any).totalMessages || 0}</div>
+                  <div className="text-white/80 text-sm">Mensagens Totais</div>
+                </div>
               </div>
-              <span className="text-green-300 text-sm font-semibold">+8%</span>
-            </div>
-            <div>
-              <div className="text-3xl font-bold mb-1">1,847</div>
-              <div className="text-white/80 text-sm">Mensagens Hoje</div>
-            </div>
-          </div>
 
-          <div className="bg-gradient-secondary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.2s'}}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                <FileText className="w-6 h-6" />
+              <div className="bg-gradient-secondary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.2s'}}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <span className="text-blue-300 text-sm font-semibold">Esta semana</span>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold mb-1">{(metrics as any).documentsCreated || 0}</div>
+                  <div className="text-white/80 text-sm">Documentos Criados</div>
+                </div>
               </div>
-              <span className="text-blue-300 text-sm font-semibold">5 esta semana</span>
-            </div>
-            <div>
-              <div className="text-3xl font-bold mb-1">23</div>
-              <div className="text-white/80 text-sm">Documentos Atualizados</div>
-            </div>
-          </div>
 
-          <div className="bg-gradient-hero p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.3s'}}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                <Clock className="w-6 h-6" />
+              <div className="bg-gradient-hero p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.3s'}}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <TrendingUp className="w-6 h-6" />
+                  </div>
+                  <span className="text-green-300 text-sm font-semibold">+5%</span>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold mb-1">{(metrics as any).engagementRate || 0}%</div>
+                  <div className="text-white/80 text-sm">Taxa de Engajamento</div>
+                </div>
               </div>
-              <span className="text-green-300 text-sm font-semibold">-15%</span>
-            </div>
-            <div>
-              <div className="text-3xl font-bold mb-1">2.3h</div>
-              <div className="text-white/80 text-sm">Tempo Resposta Médio</div>
-            </div>
-          </div>
+            </>
+          ) : (
+            <>
+              <div className="bg-gradient-card p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <Bell className="w-6 h-6" />
+                  </div>
+                  {metrics.unreadAnnouncements > 0 && (
+                    <span className="text-red-300 text-sm font-semibold">Novo!</span>
+                  )}
+                </div>
+                <div>
+                  <div className="text-3xl font-bold mb-1">{metrics.unreadAnnouncements}</div>
+                  <div className="text-white/80 text-sm">Comunicados Não Lidos</div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-primary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.1s'}}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  {metrics.unreadDocuments > 0 && (
+                    <span className="text-yellow-300 text-sm font-semibold">Pendente</span>
+                  )}
+                </div>
+                <div>
+                  <div className="text-3xl font-bold mb-1">{metrics.unreadDocuments}</div>
+                  <div className="text-white/80 text-sm">Documentos Pendentes</div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-secondary p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.2s'}}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <CheckSquare className="w-6 h-6" />
+                  </div>
+                  {metrics.pendingTasks > 0 && (
+                    <span className="text-orange-300 text-sm font-semibold">Ação</span>
+                  )}
+                </div>
+                <div>
+                  <div className="text-3xl font-bold mb-1">{metrics.pendingTasks}</div>
+                  <div className="text-white/80 text-sm">Tarefas Pendentes</div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-hero p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up" style={{animationDelay: '0.3s'}}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                  <span className="text-green-300 text-sm font-semibold">Hoje</span>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold mb-1">{metrics.activityToday}</div>
+                  <div className="text-white/80 text-sm">Atividade Hoje</div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -302,59 +345,73 @@ export function CorporateDashboard() {
                   Tarefas Pendentes
                 </CardTitle>
                 <CardDescription>
-                  {pendingTasks.length} de {tasks.length} tarefas pendentes
+                  {pendingTasks.length} tarefas pendentes
                 </CardDescription>
               </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold">{Math.round(completionRate)}%</p>
-                <p className="text-xs text-muted-foreground">Concluído</p>
-              </div>
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
+                {pendingTasks.length} pendente{pendingTasks.length !== 1 ? 's' : ''}
+              </Badge>
             </div>
-            <Progress value={completionRate} className="mt-2" />
           </CardHeader>
           <CardContent className="space-y-4">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                className={`p-4 rounded-lg border transition-colors ${
-                  task.completed 
-                    ? 'bg-success/5 border-success/20 opacity-75' 
-                    : 'bg-background hover:bg-muted/50'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className={`w-4 h-4 rounded border-2 mt-0.5 ${
-                    task.completed 
-                      ? 'bg-success border-success' 
-                      : 'border-border'
-                  }`}>
-                    {task.completed && (
-                      <Award className="w-3 h-3 text-white" />
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className={`font-medium text-sm ${
-                        task.completed ? 'line-through text-muted-foreground' : ''
-                      }`}>
-                        {task.title}
-                      </h4>
-                      <Badge 
-                        variant={task.priority === 'high' ? 'destructive' : 'outline'}
-                      >
-                        {task.priority === 'high' ? 'Urgente' : 'Normal'}
-                      </Badge>
+            {pendingTasks.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                <p className="text-sm">Todas as tarefas concluídas!</p>
+                <p className="text-xs mt-1">Você está em dia com suas pendências 🎉</p>
+              </div>
+            ) : (
+              pendingTasks.slice(0, 5).map((task) => (
+                <div
+                  key={task.id}
+                  className="p-4 rounded-lg border transition-colors hover:bg-muted/50 cursor-pointer"
+                  onClick={() => {
+                    if (task.type === 'announcement') {
+                      window.location.href = '/announcements';
+                    } else if (task.type === 'document') {
+                      window.location.href = `/documents/${task.resource_id}`;
+                    }
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div 
+                      className={`w-2 h-2 rounded-full mt-2 ${
+                        task.priority === 'urgent' ? 'bg-red-500' :
+                        task.priority === 'important' ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}
+                    />
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-sm">
+                          {task.title}
+                        </h4>
+                        <Badge 
+                          variant={task.priority === 'urgent' ? 'destructive' : 'outline'}
+                          className="text-xs"
+                        >
+                          {task.priority === 'urgent' ? 'Urgente' : 
+                           task.priority === 'important' ? 'Importante' : 'Normal'}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {task.description}
+                      </p>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        {task.type === 'announcement' ? '📢' : '📄'} {task.type === 'announcement' ? 'Comunicado' : 'Documento'}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {task.description}
-                    </p>
-                    <p className="text-xs text-muted-foreground font-medium">
-                      📅 {task.deadline}
-                    </p>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
                   </div>
                 </div>
+              ))
+            )}
+            {pendingTasks.length > 5 && (
+              <div className="text-center pt-2">
+                <Button variant="ghost" size="sm">
+                  Ver mais {pendingTasks.length - 5} tarefas
+                </Button>
               </div>
-            ))}
+            )}
           </CardContent>
         </Card>
 

@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcement_reads: {
+        Row: {
+          announcement_id: string
+          created_at: string
+          id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          announcement_id: string
+          created_at?: string
+          id?: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          announcement_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           author_user_id: string
@@ -182,6 +206,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      document_reads: {
+        Row: {
+          confirmed_at: string | null
+          confirmed_read: boolean
+          created_at: string
+          document_id: string
+          id: string
+          read_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confirmed_at?: string | null
+          confirmed_read?: boolean
+          created_at?: string
+          document_id: string
+          id?: string
+          read_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confirmed_at?: string | null
+          confirmed_read?: boolean
+          created_at?: string
+          document_id?: string
+          id?: string
+          read_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       documents: {
         Row: {
@@ -386,6 +443,36 @@ export type Database = {
           },
         ]
       }
+      user_activity_logs: {
+        Row: {
+          activity_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          resource_id: string
+          resource_type: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          resource_id: string
+          resource_type: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          resource_id?: string
+          resource_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -437,6 +524,18 @@ export type Database = {
         Args: { path: string }
         Returns: string
       }
+      get_pending_tasks: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          type: string
+          title: string
+          description: string
+          priority: string
+          created_at: string
+          resource_id: string
+        }[]
+      }
       has_document_permission: {
         Args: { document_id: string; permission_type: string }
         Returns: boolean
@@ -452,6 +551,23 @@ export type Database = {
       is_member_of_channel: {
         Args: { channel_id: string }
         Returns: boolean
+      }
+      log_user_activity: {
+        Args: {
+          activity_type: string
+          resource_type: string
+          resource_id: string
+          metadata?: Json
+        }
+        Returns: undefined
+      }
+      mark_announcement_read: {
+        Args: { announcement_id: string }
+        Returns: undefined
+      }
+      mark_document_read: {
+        Args: { document_id: string; confirmed?: boolean }
+        Returns: undefined
       }
     }
     Enums: {

@@ -12,6 +12,8 @@ import { RichTextEditor } from "@/components/editor/RichTextEditor"
 import { useAdminAccess } from "@/hooks/useAdminAccess"
 import { AttachmentsSection } from "@/components/documents/AttachmentsSection"
 import { DeleteDocumentModal } from "@/components/modals/DeleteDocumentModal"
+import { DocumentReadConfirmation } from "@/components/documents/DocumentReadConfirmation"
+import { useReadTracking } from "@/hooks/useReadTracking"
 import { formatDate } from "@/lib/utils"
 
 // Mock documents data
@@ -171,6 +173,7 @@ export default function Documents() {
   const { documentId } = useParams<{ documentId: string }>()
   const { user } = useAuth()
   const { isAdmin } = useAdminAccess()
+  const { markDocumentRead } = useReadTracking()
   const { toast } = useToast()
   const [document, setDocument] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -184,6 +187,12 @@ export default function Documents() {
       fetchDocument()
     }
   }, [documentId])
+
+  useEffect(() => {
+    if (document && user) {
+      markDocumentRead(document.id, false)
+    }
+  }, [document, user, markDocumentRead])
 
   const fetchDocument = async () => {
     if (!documentId) return
@@ -480,6 +489,16 @@ export default function Documents() {
 
         {/* Attachments Section */}
         <AttachmentsSection documentId={documentId!} canEdit={canEdit} />
+        
+        {/* Read Confirmation for non-admin users */}
+        {!isAdmin && document && (
+          <DocumentReadConfirmation 
+            documentId={document.id}
+            onConfirmed={() => {
+              // Refresh or show success message
+            }}
+          />
+        )}
       </div>
 
       {/* Delete Document Modal */}
