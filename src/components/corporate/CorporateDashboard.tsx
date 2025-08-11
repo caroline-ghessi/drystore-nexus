@@ -167,12 +167,12 @@ export function CorporateDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {isAdmin ? (
             <>
-              <div className="bg-gradient-to-br from-drystore-orange/85 to-drystore-orange/70 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20">
+              <div className="bg-gradient-to-br from-primary to-primary/80 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-primary/20">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
                     <Users className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-white/95 text-sm font-semibold bg-white/10 px-2 py-1 rounded backdrop-blur-sm">+12%</span>
+                  <span className="text-white/95 text-sm font-semibold bg-white/20 px-2 py-1 rounded backdrop-blur-sm">+12%</span>
                 </div>
                 <div>
                   <div className="text-3xl font-bold mb-1 text-white">{(metrics as any).totalUsers || 0}</div>
@@ -180,12 +180,12 @@ export function CorporateDashboard() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-drystore-orange/80 to-drystore-orange/65 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.1s'}}>
+              <div className="bg-gradient-to-br from-success to-success/80 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-success/20" style={{animationDelay: '0.1s'}}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
                     <MessageCircle className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-white/95 text-sm font-semibold bg-white/10 px-2 py-1 rounded backdrop-blur-sm">+8%</span>
+                  <span className="text-white/95 text-sm font-semibold bg-white/20 px-2 py-1 rounded backdrop-blur-sm">+8%</span>
                 </div>
                 <div>
                   <div className="text-3xl font-bold mb-1 text-white">{(metrics as any).totalMessages || 0}</div>
@@ -193,12 +193,12 @@ export function CorporateDashboard() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-drystore-orange/75 to-drystore-orange/60 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.2s'}}>
+              <div className="bg-gradient-to-br from-info to-info/80 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-info/20" style={{animationDelay: '0.2s'}}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
                     <FileText className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-white/95 text-sm font-semibold bg-white/10 px-2 py-1 rounded backdrop-blur-sm">Esta semana</span>
+                  <span className="text-white/95 text-sm font-semibold bg-white/20 px-2 py-1 rounded backdrop-blur-sm">Esta semana</span>
                 </div>
                 <div>
                   <div className="text-3xl font-bold mb-1 text-white">{(metrics as any).documentsCreated || 0}</div>
@@ -206,12 +206,12 @@ export function CorporateDashboard() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-drystore-orange/90 to-drystore-orange/75 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.3s'}}>
+              <div className="bg-gradient-to-br from-warning to-warning/80 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-warning/20" style={{animationDelay: '0.3s'}}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
                     <TrendingUp className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-white/95 text-sm font-semibold bg-white/10 px-2 py-1 rounded backdrop-blur-sm">+5%</span>
+                  <span className="text-white/95 text-sm font-semibold bg-white/20 px-2 py-1 rounded backdrop-blur-sm">+5%</span>
                 </div>
                 <div>
                   <div className="text-3xl font-bold mb-1 text-white">{(metrics as any).engagementRate || 0}%</div>
@@ -221,7 +221,7 @@ export function CorporateDashboard() {
             </>
           ) : (
             <>
-              <div className="bg-gradient-to-br from-drystore-orange/85 to-drystore-orange/70 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20">
+              <div className="bg-gradient-to-br from-primary to-primary/80 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-primary/20">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
                     <Bell className="w-6 h-6 text-white" />
@@ -236,7 +236,7 @@ export function CorporateDashboard() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-drystore-orange/80 to-drystore-orange/65 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.1s'}}>
+              <div className="bg-gradient-to-br from-info to-info/80 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-info/20" style={{animationDelay: '0.1s'}}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
                     <FileText className="w-6 h-6 text-white" />
@@ -251,7 +251,7 @@ export function CorporateDashboard() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-drystore-orange/75 to-drystore-orange/60 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.2s'}}>
+              <div className="bg-gradient-to-br from-warning to-warning/80 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-warning/20" style={{animationDelay: '0.2s'}}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
                     <CheckSquare className="w-6 h-6 text-white" />
@@ -266,7 +266,7 @@ export function CorporateDashboard() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-drystore-orange/90 to-drystore-orange/75 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-drystore-orange/20" style={{animationDelay: '0.3s'}}>
+              <div className="bg-gradient-to-br from-success to-success/80 p-6 rounded-2xl text-white shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group animate-slide-up border border-success/20" style={{animationDelay: '0.3s'}}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-white/15 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
                     <Activity className="w-6 h-6 text-white" />

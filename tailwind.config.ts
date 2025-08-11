@@ -37,6 +37,10 @@ export default {
 					hover: 'hsl(var(--primary-hover))',
 					active: 'hsl(var(--primary-active))'
 				},
+				'drystore-orange': 'hsl(var(--drystore-orange))',
+				'drystore-dark': 'hsl(var(--drystore-dark))',
+				'drystore-medium': 'hsl(var(--drystore-medium))',
+				'drystore-light-gray': 'hsl(var(--drystore-light-gray))',
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))'
